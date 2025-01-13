@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # ---------------------
+  # Frontend service
+  # ---------------------
+  frontend:
+    build: frontend/.
+    image: lobbymap-frontend:latest
+    depends_on:
+      - feedback_api
+    ports:
+      - "8501:8501"
+    networks:
+      - app_network
+
+  # ---------------------
+  # FastAPI service
+  # ---------------------
+  feedback_api:
+    build: lobby-map-fbtool/.
+    image: lobbymap-feedback-api:latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    environment:
+      # Use your custom Mongo URI here. Note that feedback_db will be created automatically if it doesn't exist.
+      MONGODB_URI: mongodb://lobbymap:lobbymap_pass@mongodb/feedback_db?retryWrites=true&w=majority
+    networks:
+      - app_network
+
+
+  # ---------------------
+  # MongoDb service
+  # ---------------------
+  mongodb:
+    image: mongo:7
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_USERNAME=lobbymap
+      - MONGO_INITDB_PASSWORD=lobbymap_pass
+      - MONGO_INITDB_DATABASE=feedback_db
+
+    # Overriding the entrypoint to create the init script on-the-fly:
+    entrypoint: |
+      sh -c "
+      echo 'Generating default database & user...'
+      mkdir -p /docker-entrypoint-initdb.d
+    
+      cat > /docker-entrypoint-initdb.d/mongo-init.js <<EOF
+      var rootUser = \"$${MONGO_INITDB_ROOT_USERNAME}\";
+      var rootPassword = \"$${MONGO_INITDB_ROOT_PASSWORD}\";
+      var admin = db.getSiblingDB('admin');
+      admin.auth(rootUser, rootPassword);
+    
+      // Use single quotes inside JS
+      var feedbackDB = db.getSiblingDB('feedback_db');
+      feedbackDB.createUser({
+        user: 'lobbymap',
+        pwd: 'lobbymap_pass',
+        roles: [ { role: 'readWrite', db: 'feedback_db' } ]
+      });
+      EOF
+    
+      docker-entrypoint.sh mongod
+      "
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - app_network
+
+# ---------------------
+# Define the shared network
+# ---------------------
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mongodata:
