@@ -1,9 +1,19 @@
 import streamlit as st
-import random
 import requests
 import datetime
-import time
+import yaml
+import os
+from utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
 
+root_dir = os.path.dirname(os.path.dirname(__file__))
+config_path = os.path.join(root_dir, 'config.yaml')
+with open(config_path, "r") as f:
+    config = yaml.safe_load(f)
+
+FILE_SYSTEM = config["Backend"]["file_system"]
+FILE_SYSTEM_SERVER = config["Backend"]["file_system_server"]
+DATA_MAP = FILE_SYSTEM + "/" + config["Backend"]["data_map"]
+PROMPT_MAP = FILE_SYSTEM + "/" + config["Backend"]["prompt_map"]
 
 def set_page_layout():
     """
@@ -51,6 +61,18 @@ def initialize_states():
 
     if "generated_stances" not in st.session_state:
         st.session_state.generated_stances = {}
+    
+    if "selected_sidebar" not in st.session_state:
+        st.session_state.selected_sidebar = "Filters"
+
+    if "selected_file" not in st.session_state:
+        st.session_state.selected_file = None
+    
+    if "show_upload_dialog" not in st.session_state:
+        st.session_state.show_upload_dialog = False
+    
+    if "selected_prompt" not in st.session_state:
+        st.session_state.selected_prompt = None
 
 
 def truncate_content(text, word_limit):
@@ -85,6 +107,7 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
         "evidences": [ ... ]
       }
     """
+    query = pdf_docs_struct.get("search", {}).get("query", "")
     pdf_evidences = pdf_docs_struct.get("evidences", [])
     total_chunks = len(pdf_evidences)
 
@@ -97,13 +120,11 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
     for idx, evidence_item in enumerate(pdf_evidences):
         doc = evidence_item.get("evidence", {})
         content = doc.get("content", "").strip()
-
-        # Additional fields from the new payload:
-        stance = evidence_item.get("stance")  # e.g. -2 to +2
-        stance_text = evidence_item.get("stance_text")  # string explanation
-        confidence_score = evidence_item.get("confidence_score", 0.0)
-        rank_score = evidence_item.get("rank_score", 0.0)
-
+        author = doc.get("author", "N/A")
+        date = doc.get("date", "N/A")
+        region = doc.get("region", "N/A")
+        file_name = doc.get("file_name", "N/A")
+    
         # 1) Display truncated content with a popover for the full text
         if content:
             st.text(truncate_content(f"{content}\n\n", 30))
@@ -112,22 +133,30 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
 
         # 2) Display metadata
         with st.expander("View Metadata"):
-            st.markdown(f"- **Date:** {doc.get('date', 'N/A')}")
-            st.markdown(f"- **File Name:** {doc.get('file_name', 'N/A')}")
-            st.markdown(f"- **Region:** {doc.get('region', 'N/A')}")
-            st.markdown(f"- **Author:** {doc.get('author', 'N/A')}")
+            st.markdown(f"- **Date:** {date}")
+            st.markdown(f"- **File Name:** {file_name}")
+            st.markdown(f"- **Region:** {region}")
+            st.markdown(f"- **Author:** {author}")
 
         # 3) Removal & Ranking Controls
         chunk_key = f"msg_{msg_index}_chunk_{idx}"
         if chunk_key not in st.session_state.removals:
             st.session_state.removals[chunk_key] = False
+
         removal_state = st.session_state.removals[chunk_key]
         icon_path = "../images/removed-bin.png" if removal_state else "../images/bin.png"
 
         if chunk_key not in st.session_state.ranks:
             st.session_state.ranks[chunk_key] = idx
         rank_options = [i + 1 for i in range(total_chunks)]  # Start from 1 in the dropdown
-        stance_data = st.session_state.generated_stances.get(chunk_key, {"stance": None, "stance_text": ""})
+
+        if chunk_key not in st.session_state.generated_stances:
+            st.session_state.generated_stances[chunk_key] = {
+                "stance": None, 
+                "stance_text": None, 
+                "stance_score": None, 
+                "updated_generated_stance": None
+                }
 
         col_icon, col_button, col_rank, col_stance = st.columns([0.2, 1.5, 1.5, 1.5])
         with col_icon:
@@ -153,21 +182,21 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
             if not removal_state:
                 if st.button("Generate Stance", key=f"generate_stance_{chunk_key}"):
                     with st.spinner("Generating stance..."):
-                        # sleep to simulate a long-running process
-                        time.sleep(3)
-                        # Mockup response for stance generation
-                        stance_payload = {
-                            "stance": random.randint(-2, 2),
-                            "stance_text": "Mockup stance text explaining the evidence stance.",
-                        }
+                        # Make stance generation call
+                        stance_payload = generator_call(
+                            query=query,
+                            evidence=content,
+                            # author=author
+                        )
                         st.session_state.generated_stances[chunk_key] = {
                             **stance_payload,
                             "updated_generated_stance": stance_payload["stance"]  # Default to generated stance
                         }
                         st.rerun()
-
+        
         if not removal_state:
             # Display the stance score as a dropdown
+            stance_data = st.session_state.generated_stances[chunk_key]
             if stance_data["stance"] is not None:
                 # Dropdown options for stance values
                 stance_options = [-2, -1, 0, 1, 2]
@@ -184,6 +213,7 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
                 )
                 # Store the updated stance in session state
                 st.session_state.generated_stances[chunk_key]["updated_generated_stance"] = selected_stance
+
 
                 # Determine box and background colors based on selected stance value
                 if selected_stance > 0:
@@ -254,166 +284,368 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
             st.success("Feedback successfully sent!")
 
 
-def render_sidebar():
+def show_prompt_info(
+        selected_prompt: dict,
+    ):
     """
-    Render the sidebar with filtering options and a "Clear Chat" button.
-    Returns the user's input for filtering and how many docs to retrieve.
+    Display prompt information in a container.
     """
-    st.sidebar.header("Filter Options")
-    author = st.sidebar.text_input('Author (optional)')
-    date = st.sidebar.text_input('Date (optional)')
-    region = st.sidebar.text_input('Region (optional)')
-    filename = st.sidebar.text_input('Filename (optional)')
-    num_documents = st.sidebar.number_input(
+    with st.container():
+        st.markdown(
+            f"""
+            # {selected_prompt["query"]}
+
+            --------------------------------
+            #### Pompt: 
+            {selected_prompt["prompt"]}
+            """, unsafe_allow_html=True)
+
+def show_file_info(
+        file_name: str,
+        author: str = "Unknown",
+        date: str = "Unknown",
+        region: str = "Unknown",
+        size: float = 0.0,
+        url: str = "",
+        num_chunks: int = 0,
+    ):
+    """
+    Display file information in a container.
+    """
+    with st.container():
+        st.markdown(
+            f"""
+            # {file_name}
+
+            Size: {size} MB
+
+            Chunks: {num_chunks}
+
+            [View File]({url})
+
+            ## Metadata
+
+            **Author:** {author}
+
+            **Date:** {date}
+
+            **Region:** {region}
+
+            """, unsafe_allow_html=True)
+
+
+def filter_options():
+    """
+    Default filter options for the sidebar.
+    """
+    st.header("Filter Options")
+    author = st.text_input('Author (optional)')
+    date = st.text_input('Date (optional)')
+    region = st.text_input('Region (optional)')
+    filename = st.text_input('Filename (optional)')
+    num_documents = st.number_input(
         'Number of documents to return',
         min_value=1,
         value=5
     )
 
-    if st.sidebar.button("Clear Chat"):
-        st.session_state.messages = []
-        st.session_state.removals = {}
-        st.session_state.ranks = {}
-        st.rerun()
+    return author, date, region, filename, num_documents
+
+
+@st.dialog("Add a Prompt")
+def new_prompt_dialog():
+    query = st.text_input("Query")
+    prompt = st.text_input("Prompt")
+
+    col1, col2 = st.columns([1, 1], gap="small", vertical_alignment="top")
+
+    with col1:
+        if st.button("Save"):
+            if not query.strip():
+                st.warning("Please enter a query.")
+            elif not prompt.strip():
+                st.warning("Please enter a prompt.")
+            else:
+                new_prompt = {
+                    "query": query,
+                    "prompt": prompt
+                }
+
+                add_to_collection(PROMPT_MAP, new_prompt)
+                st.rerun()
+
+    with col2:
+        if st.button("Cancel", key="cancel_upload"):
+            st.rerun()
+
+
+
+
+def render_sidebar():
+    """
+    Render the sidebar with filtering options and a "Clear Chat" button.
+    Returns the user's input for filtering and how many docs to retrieve.
+    """
+    author, date, region, filename, num_documents = None, None, None, None, 5
+
+    with st.sidebar:
+        col1, col2 = st.columns([1, 4], gap="small", vertical_alignment="top")
+
+        with col1:
+            if st.button("⚙️", key="icon_button_1", help="Filters"):
+                st.session_state.selected_sidebar = "Filters"
+
+            if st.button("🗄️", key="icon_button_2", help="Files"):
+                if st.session_state.selected_file:
+                    st.session_state.selected_file = None
+                    st.session_state.selected_sidebar = "Files"
+                    st.rerun()
+                
+                else:
+                    # If already in files view, we don't reset anything
+                    st.session_state.selected_sidebar = "Files"
+            
+            if st.button("📝", key="icon_button_3", help="Prompts"):
+                if st.session_state.selected_prompt:
+                    st.session_state.selected_prompt = None
+                    st.session_state.selected_sidebar = "Prompts"
+                    st.rerun()
+                
+                else:
+                    # If already in files view, we don't reset anything
+                    st.session_state.selected_sidebar = "Prompts"
+
+        with col2:
+            if st.session_state.selected_sidebar == 'Filters':
+                author, date, region, filename, num_documents = filter_options()
+            
+            elif st.session_state.selected_sidebar == 'Prompts':
+                st.header("Prompts")
+                if st.session_state.selected_prompt:
+                    # Display selected file details
+                    selected_prompt = st.session_state.selected_prompt
+                    show_prompt_info(selected_prompt)
+
+                    if st.button("Delete", key="delete_prompt"):
+                        delete_prompt(PROMPT_MAP, selected_prompt)
+                        st.success("Prompt deleted successfully.")
+                        st.session_state.selected_prompt = None
+                        st.rerun()
+
+                    # Back button to return to search view
+                    if st.button("Back", key="back_button"):
+                        st.session_state.selected_prompt = None
+                        st.rerun()
+                
+                else:
+                    if st.button("Add a prompt", key=f"add_prompt"):
+                        new_prompt_dialog()
+
+                    search_query = st.text_input("Search prompts", key="prompt_search")
+                    all_prompt = list_prompts(PROMPT_MAP)
+
+
+                    if search_query.strip():
+                        filtered_prompt = [f for f in all_prompt if search_query.lower() in f["query"].lower()]
+
+                    else:
+                        filtered_prompt = all_prompt
+                    
+                    if not filtered_prompt:
+                        st.write("No prompts match your search.")
+                    
+                    else:
+                        for prompt in filtered_prompt:
+                            with st.container():
+                                if st.button(prompt["query"], key=f"prompt_{prompt["query"].split()[0]}"):
+                                    st.session_state.selected_prompt = prompt
+                                    st.rerun()
+                    
+            
+            else:
+                st.header("Files")
+                # Check if a file has been selected
+                if st.session_state.selected_file:
+                    # Display selected file details
+                    selected_file = st.session_state.selected_file
+                    show_file_info(
+                        file_name = selected_file["file_name"],
+                        author = selected_file["author"],
+                        date = selected_file["date"],
+                        region = selected_file["region"],
+                        size = selected_file["size"],
+                        url = selected_file["url"],
+                        num_chunks = selected_file["num_chunks"],
+                    )
+               
+                    # Back button to return to search view
+                    if st.button("Back", key="back_button"):
+                        st.session_state.selected_file = None  # Reset selection
+                        st.rerun()
+                    
+
+                
+                else:
+                    # File search and list
+                    search_query = st.text_input("Search files", key="file_search")
+
+                    # Base list of files
+                    all_files = list_collection(DATA_MAP)
+            
+                    # Reactive filtering
+                    if search_query.strip():
+                        filtered_files = [f for f in all_files if search_query.lower() in f["file_name"].lower()]
+                    else:
+                        filtered_files = all_files
+
+                    if not filtered_files:
+                        st.write("No files match your search.")
+                    else:
+                        for file in filtered_files:
+                            with st.container():
+                                if st.button(file["file_name"], key=f"file_{file["file_name"]}"):
+                                    st.session_state.selected_file = file
+                                    st.rerun()
+
 
     return author, date, region, filename, num_documents
 
+
+
+@st.dialog("Upload File and Add Metadata")
+def upload_dialog():
+    uploaded_file = st.file_uploader("Choose a file", type=["pdf"])
+    author = st.text_input("Author")
+    Date = st.text_input("Date")
+    Region = st.text_input("Region")
+
+    col1, col2 = st.columns([1, 1], gap="small", vertical_alignment="top")
+
+    with col1:
+        if st.button("Save"):
+            if not uploaded_file:
+                st.warning("Please upload a file.")
+            elif not author.strip():
+                st.warning("Author field cannot be empty.")
+            else:
+                file_name = uploaded_file.name
+
+                # Check if file already exists
+                if check_file_in_map(file_name, DATA_MAP):
+                    st.error(f"File '{file_name}' already exists.")
+                    return
+
+                size = uploaded_file.size
+                os.makedirs(FILE_SYSTEM, exist_ok=True)
+                url = f"{FILE_SYSTEM_SERVER}/{file_name}"
+                file_path = f"{FILE_SYSTEM}/{file_name}"
+
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+                with st.spinner("Processing file..."):
+                    # Make upload call
+                    num_chunks = upload_call(
+                        file_path=file_path,
+                        author=author,
+                        date=Date,
+                        region=Region,
+                        size=size
+                    )["num_chunks"]
+
+                # Re-write the Data Map
+                new_file = {
+                        "file_name": file_name,
+                        "author": author,
+                        "date": Date,
+                        "degion": Region,
+                        "size": size,
+                        "url": url,
+                        "num_chunks": num_chunks
+                    }
+                
+                add_to_collection(DATA_MAP, new_file)
+                st.session_state.upload_success = f"File '{file_name}' and metadata submitted."
+                st.rerun()
+
+
+    with col2:
+        if st.button("Cancel", key="cancel_upload"):
+            st.rerun()
+
+    st.session_state.show_upload_dialog = False
 
 def handle_chat_input(author, date, region, filename, num_documents):
     """
     Handles user input via the chat_input widget. Fetches mock results,
     stores them, and triggers a rerun to display the updated conversation.
     """
-    prompt = st.chat_input("Ask our search engine...")
-    if not prompt:
-        return
+    col1, col2, col3 = st.columns([4, 1, 1], gap="small", vertical_alignment="bottom")
+    if "query_select" not in st.session_state:
+        st.session_state["query_select"] = "Select a query..."
 
+    with col1:
+        queries = ["Select a query..."] + [p["query"] for p in list_prompts(PROMPT_MAP)]
+        st.selectbox(
+            "Select a query...", 
+            queries, 
+            label_visibility="collapsed", 
+            key="query_select"
+            )
+
+
+    with col2:
+        if st.button("📤", help="upload files", key="upload_icon"):
+            st.session_state.show_upload_dialog = True
+
+    with col3:
+        if st.button(
+            label = "Clear Chat",
+            key = "clear_chat",
+            help = "Clear the chat history"
+            ):
+            st.session_state.messages = []
+            st.session_state.removals = {}
+            st.session_state.ranks = {}
+            st.rerun()
+    
+    if st.session_state.show_upload_dialog:
+        upload_dialog()
+
+    if "upload_success" in st.session_state:
+        st.success(st.session_state.upload_success)
+        del st.session_state.upload_success
+    
+    selected_query = st.session_state["query_select"]
+    if selected_query == "Select a query...":
+        return
+    
+    # Do your retrieval logic here:
+    prompt = next((p["prompt"] for p in list_prompts(PROMPT_MAP) 
+                   if p["query"] == selected_query), "")
+    
     # Add user message to session
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.spinner("Retrieving information..."):
-        params = {'query': prompt}
-        if author:
-            params['author'] = author
-        if date:
-            params['date'] = date
-        if region:
-            params['region'] = region
-        if filename:
-            params['file_name'] = filename
-        params['top_k'] = num_documents
+        # Make retriever call
+        response = retriever_call(
+            query=prompt,
+            author=author,
+            date=date,
+            region=region,
+            file_name=filename,
+            top_k=num_documents
+        )
 
-        # Mock call to RAG API
-        response = {
-            "pdf_docs": {
-                "search": {
-                    "query": "energy transition & zero carbon technologies",
-                    "author": "CEZ",
-                    "date": "",
-                    "region": "",
-                    "file_name": "",
-                    "top_k": 4
-                },
-                "artifacts": {
-                    "parser": {
-                        "model_name": "docling",
-                        "options": {
-                            "do_ocr": True,
-                            "ocr_options": "easyocr",
-                            "do_table_structure": True,
-                            "do_cell_matching": False,
-                            "tableformer_mode": "ACCURATE",
-                            "images_scale": 1.0,
-                            "generate_page_images": False,
-                            "generate_picture_images": False,
-                            "backend": "docling",
-                            "embed_images": False
-                        }
-                    },
-                    "rag_components": {
-                        "chunking_method": "layout",
-                        "chunking_similarity_threshold": 8000,
-                        "vectorizer_model_name": "bge-m3",
-                        "reranker_model_name": "BAAI/bge-reranker-v2-m3"
-
-                    }
-                },
-                "evidences": [
-                    {
-                        "evidence": {
-                            "content": "## BRIEFING PAPER FEBRUARY 2017\n## CLIMATE & ENERGY SNAPSHOT: CZECH REPUBLIC\n## THE POLITICAL ECONOMY OF THE LOWCARBON TRANSITION\nJULIAN SCHWARTZKOPFF, SABRINA SCHULZ & ALEXANDRA GORITZ\nThis Briefing Paper presents an assessment of the political economy of the Czech Republic with regard to the loW-carbon transition. This paper is of a series of briefings on the four Central European states forming the \"Visegrad Group\" . Often  perceived as one unified bloc working against the low-carbon transition, E3G digs deeper and studies their specificities, their influence and their   particular social and economical interests, in order to identify opportunities to accelerate the low-carbon transition, domestically, and at the European level: part\nglobal  low-carbon transition is underway, but not all countries are actively participating: Engaging as early as possible, however; is crucial to reap benefits of lowcarbon development while avoiding economic losses through stranded assets and abrupt economic shifts. In the European Union (EU), the Visegrad Group in particular is   often seen to be attempting to slow down the low-carbon transition, both domestically and by opposing stronger EU climate action.\nAgainst this background, E3G has applied its Political Economy Mapping Methodology (PEMM) to the Visegrad states plus Romania and Bulgaria. The process involves extensive desk-based research as well as stakeholder interviews to identify the factors influencing country's position on energy and climate issues. The \"Climate & Energy   Snapshot\" series summarises the main findings into digestible   country briefings. All briefings will be published over the course of 2017. key\nWhen taking a closer   look, it becomes  apparent that there are considerable differences and disagreements between the countries. Identifying these discrepancies is crucial for designing country-specific intervention and cooperation opportunities that support a loW-carbon transition.",
-                            "date": "2017",
-                            "file_path": "data/Goku/pdf_files/-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "page_count": 25,
-                            "title": "",
-                            "file_name": "-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "region": "",
-                            "author": "CEZ"
-                        },
-                        "confidence_score": 0.7771179676055908,
-                        "rank_score": 0.3684056955947133,
-                        "stance": -1,
-                        "stance_text": "The evidence suggests that the Czech Republic, along with other Visegrad Group countries..."
-                    },
-                    {
-                        "evidence": {
-                            "content": "## Public goods\n## Summary assessment:\nConcern for social issues may offer opportunities to promote action towards a low-carbon transition when a link to environmental problems can be established.",
-                            "date": "2017",
-                            "file_path": "data/Goku/pdf_files/-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "page_count": 25,
-                            "title": "",
-                            "file_name": "-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "region": "",
-                            "author": "CEZ"
-                        },
-                        "confidence_score": 0.7646533250808716,
-                        "rank_score": 0.08945460216888064,
-                        "stance": 0,
-                        "stance_text": "The evidence focuses on social issues and their potential link to environmental problems..."
-                    },
-                    {
-                        "evidence": {
-                            "content": "## Technology and innovation capability\n## Summary assessment:\nAlthough technology and innovation capability is a significant strength of the Czech   economy, these efforts are not geared towards a low-carbon transition. vet",
-                            "date": "2017",
-                            "file_path": "data/Goku/pdf_files/-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "page_count": 25,
-                            "title": "",
-                            "file_name": "-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "region": "",
-                            "author": "CEZ"
-                        },
-                        "confidence_score": 0.7746239900588989,
-                        "rank_score": 0.0793528944558775,
-                        "stance": -2,
-                        "stance_text": "The evidence explicitly states that technology and innovation capability..."
-                    },
-                    {
-                        "evidence": {
-                            "content": "## About E3G\nE3G is an independent, non-profit European organisation operating in the public interest to accelerate the global transition to sustainable development: E3G builds cross-sectoral coalitions to achieve carefully defined outcomes, chosen for their capacity to leverage   change. E3G works closely with like-minded partners in government,  politics, business, civil   society, science, the media,  public   interest foundations and elsewhere:\nMore information is available at WWW.e3g org",
-                            "date": "2017",
-                            "file_path": "data/Goku/pdf_files/-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "page_count": 25,
-                            "title": "",
-                            "region": "",
-                            "file_name": "-000-370-CEZ-Group_E3G_Czech-Energy-Snapshot_25-07-2018.pdf",
-                            "author": "CEZ"
-                        },
-                        "confidence_score": 0.7634724974632263,
-                        "rank_score": 0.012147170099805137,
-                        "stance": 0,
-                        "stance_text": "This evidence provides information about E3G but does not directly address the energy transition..."
-                    }
-                ]
-            }
-        }
-
-        # Store the assistant's response in session state
-        st.session_state.messages.append({
-            "role": "assistant",
-            "pdf_docs": response["pdf_docs"]
-        })
-        st.rerun()
+    # Store the assistant's response in session state
+    st.session_state.messages.append({
+        "role": "assistant",
+        "pdf_docs": response["pdf_docs"]
+    })
+    del st.session_state["query_select"]
+    st.rerun()
 
 
 def build_feedback_payloads(response: dict, msg_index: int) -> list:
@@ -436,20 +668,26 @@ def build_feedback_payloads(response: dict, msg_index: int) -> list:
         date = doc.get("date")
         region = doc.get("region")
 
-        generated_stance = evidence_item.get("stance", 0)
-        generated_stance_reason = evidence_item.get("stance_text", "")
         confidence_score = evidence_item.get("confidence_score", 0.0)
         rank_score = evidence_item.get("rank_score", 0.0)
 
         # Use the same chunk_key format as in render_pdf_docs
         chunk_key = f"msg_{msg_index}_chunk_{idx}"
-        removal_state = st.session_state.removals.get(chunk_key, False)
-        user_selected_rank = st.session_state.ranks.get(chunk_key, idx)
 
-        status = "rejected" if removal_state else "approved"
-        updated_status = status
-        generated_stance_score = round(random.uniform(0, 1), 2)
-        updated_generated_stance = st.session_state.generated_stances.get(chunk_key, {}).get("updated_generated_stance")
+        # Retrieve the stance data from session state
+        stance_data = st.session_state.generated_stances[chunk_key]
+        generated_stance = stance_data.get("stance")
+        generated_stance_reason = stance_data.get("stance_text")
+        generated_stance_score = stance_data.get("stance_score")
+        updated_generated_stance = stance_data.get("updated_generated_stance")
+
+        # Retrieve the removal state from session state
+        removal_state = st.session_state.removals.get(chunk_key, False)
+        updated_status = "rejected" if removal_state else "approved"
+        
+        # Retrieve the rank data from session state
+        user_selected_rank = st.session_state.ranks.get(chunk_key, idx+1)
+
 
         feedback_item = {
             "search_elements": {
@@ -466,18 +704,19 @@ def build_feedback_payloads(response: dict, msg_index: int) -> list:
             "author": author,
             "date": date,
             "region": region,
-            "rank": idx,
+            "rank": idx+1,
             "status": "approved",
             "confidence_score": confidence_score,
             "rank_score": rank_score,
             "generated_stance": generated_stance,
             "generated_stance_reason": generated_stance_reason,
             "generated_stance_score": generated_stance_score,
-            "updated_rank": user_selected_rank,
+            "updated_rank": user_selected_rank+1,
             "updated_status": updated_status,
             "updated_generated_stance": updated_generated_stance,
             "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+
         feedback_payloads.append(feedback_item)
 
     return feedback_payloads
@@ -492,6 +731,9 @@ def main():
     4. Render the sidebar for filtering
     5. Handle new user input
     """
+    existing_files = get_collections()["files"]
+    save_collection(DATA_MAP, existing_files)
+
     set_page_layout()
     create_header()
     initialize_states()
@@ -501,6 +743,7 @@ def main():
 
     author, date, region, filename, num_documents = render_sidebar()
     handle_chat_input(author, date, region, filename, num_documents)
+
 
 
 if __name__ == "__main__":
