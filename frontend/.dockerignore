@@ -8,6 +8,7 @@ README.md
 .DS_Store
 Dockerfile
 .dockerignore
+.venv
 
 # Exclude tests directory
 tests/
