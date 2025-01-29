@@ -1,0 +1,62 @@
+#### Parsing options ####
+DoclingParser_options:
+  accelerator:
+    device: "auto" # "auto" or "cpu" or "cuda" or "mps"
+    num_threads: 4
+  ocr:
+    do_ocr: True
+    engine: "easyocr"
+    easyocr_settings:
+      force_full_page_ocr: True
+      confidence_threshold: 0.5
+
+  table:
+    do_table_structure: True
+    table_structure_options:
+      do_cell_matching: False
+      tableformer_mode: "accurate" # "accurate" or "fast"
+
+  image:
+    images_scale: 1.0
+    generate_page_images: False
+    generate_picture_images: False
+
+  backend: "docling" # "docling" or "pypdfium"
+  
+  embed_images: False
+
+
+parser_options:
+  parser: "docling"
+  save_parsed_content: True
+  output_dir: "markdown"
+  parser_options: "DoclingParser_options"
+
+
+
+#### Chunking options ####
+LayoutChunking_options:
+  token_limit: 8000
+  tokenizer_model: "bert-base-uncased"
+  
+
+Chunker:
+  chunking_method: "Layout"
+  chunking_options: "LayoutChunking_options"
+
+
+
+### Weaviate options ###
+Weaviate_options:
+  collection_name: "alpha_v0"
+  vectorizer: "bge-m3" 
+  reranker: "BAAI/bge-reranker-v2-m3"
+  generator: "qwen2.5:latest"
+
+
+Backend:
+  file_system: "/app/data/documents"
+  file_system_server: "http://localhost:8000"
+  data_map: "data_map.json"
+  prompt_map: "prompt_map.json"
+
