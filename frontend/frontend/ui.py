@@ -3,9 +3,9 @@ import requests
 import datetime
 import yaml
 import os
-from utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
+from frontend.utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
 
-root_dir = os.path.dirname(os.path.dirname(__file__))
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 config_path = os.path.join(root_dir, 'config.yaml')
 with open(config_path, "r") as f:
     config = yaml.safe_load(f)
