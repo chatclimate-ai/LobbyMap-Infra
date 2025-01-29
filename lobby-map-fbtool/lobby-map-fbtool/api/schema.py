@@ -39,14 +39,20 @@ class ParserModel(BaseModel):
         description="The options of the parser model",
     )
 
-class RAGComponents(BaseModel):
+class ChunkerModel(BaseModel):
     chunking_method: str = Field(
         ...,
         description="The method used to chunk the evidence",
     )
-    chunking_similarity_threshold: float = Field(
+    options: Optional[dict] = Field(    
+        default=None,
+        description="The options of the chunker model",
+    )
+
+class RAGComponents(BaseModel):
+    collection_name: str = Field(
         ...,
-        description="The similarity threshold used to chunk the evidence",
+        description="The name of the collection in weaviate",
     )
     vectorizer_model_name: str = Field(
         ...,
@@ -56,9 +62,14 @@ class RAGComponents(BaseModel):
         ...,
         description="The name of the reranker model",
     )
+    generator_model_name: str = Field(
+        ...,
+        description="The name of the generator model",
+    )
 
 class Artifacts(BaseModel):
     parser: ParserModel
+    chunker: ChunkerModel
     rag_components: RAGComponents
 class EvidenceModel(BaseModel):
     """
