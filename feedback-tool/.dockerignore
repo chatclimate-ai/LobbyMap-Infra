@@ -1,0 +1,14 @@
+# Exclude poetry files
+poetry.lock
+pyproject.toml
+
+# Exclude README files
+README.md
+
+.DS_Store
+Dockerfile
+.dockerignore
+.venv
+
+# Exclude tests directory
+tests/
