@@ -1,0 +1,20 @@
+[project]
+name = "feedback-tool"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Imene KOLLI",email = "53266529+imene-swaan@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi (>=0.115.7,<0.116.0)",
+    "uvicorn (>=0.34.0,<0.35.0)",
+    "motor (>=3.6.1,<4.0.0)",
+    "python-dotenv (>=1.0.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
