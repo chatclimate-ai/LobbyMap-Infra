@@ -1,0 +1,19 @@
+[project]
+name = "frontend"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Imene KOLLI",email = "53266529+imene-swaan@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "streamlit (>=1.41.1,<2.0.0)",
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "watchdog (>=6.0.0,<7.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
