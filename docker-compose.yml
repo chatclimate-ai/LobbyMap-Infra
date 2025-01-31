@@ -9,13 +9,51 @@ services:
     image: lobbymap-frontend:latest
     depends_on:
       - feedback_api
+      - rag_api
     ports:
       - "8501:8501"
+    
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - pdf_storage:/app/data/documents
     networks:
       - app_network
+  
+  # ---------------------
+  # PDF Manager
+  # ---------------------
+  pdf_manager:
+    build: pdf_manager/.
+    image: pdf_manager:latest
+    volumes:
+      - pdf_storage:/app/data/documents
+    command: "true"
+    networks:
+      - app_network
+    restart: "no"
+
+  
+  # ---------------------
+  # PDF HTTP Server (Serves the PDFs)
+  # ---------------------
+  pdf_server:
+    image: python:3.12-slim 
+    container_name: pdf_server
+    working_dir: /app/data/documents
+    volumes:
+      - pdf_storage:/app/data/documents
+      - ./config.yaml:/app/config.yaml
+    command: python -m http.server 8002
+    depends_on:
+      - pdf_manager 
+    ports:
+      - "8002:8002"
+    networks:
+      - app_network
+    restart: unless-stopped
 
   # ---------------------
-  # FastAPI service
+  # Feedback FastAPI service
   # ---------------------
   feedback_api:
     build: feedback-tool/.
@@ -25,14 +63,12 @@ services:
     depends_on:
       - mongodb
     environment:
-      # Use your custom Mongo URI here. Note that feedback_db will be created automatically if it doesn't exist.
       MONGODB_URI: mongodb://lobbymap:lobbymap_pass@mongodb/feedback_db?retryWrites=true&w=majority
     networks:
       - app_network
 
-
   # ---------------------
-  # MongoDb service
+  # MongoDB service
   # ---------------------
   mongodb:
     image: mongo:7
@@ -44,8 +80,6 @@ services:
       - MONGO_INITDB_USERNAME=lobbymap
       - MONGO_INITDB_PASSWORD=lobbymap_pass
       - MONGO_INITDB_DATABASE=feedback_db
-
-    # Overriding the entrypoint to create the init script on-the-fly:
     entrypoint: |
       sh -c "
       echo 'Generating default database & user...'
@@ -75,12 +109,100 @@ services:
     networks:
       - app_network
 
+  # ---------------------
+  # RAG API service
+  # ---------------------
+  rag_api:
+    build:
+      context: rag/.
+      dockerfile: Dockerfile
+    image: lobbymap-rag-api:latest
+    ports:
+      - "8001:8001"
+    depends_on:
+      - weaviate
+      - ollama
+      - pdf_server
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - pdf_storage:/app/data/documents
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ "gpu" ]
+    networks:
+      - app_network
+
+  # ---------------------
+  # Weaviate service
+  # ---------------------
+  weaviate:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - '8080'
+      - --scheme
+      - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.27.0
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    volumes:
+      - ./data/weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      OLLAMA_ENDPOINT: 'http://ollama:11434'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-ollama'
+      ENABLE_MODULES: 'text2vec-ollama'
+      CLUSTER_HOSTNAME: 'node1'
+    networks:
+      - app_network
+
+  # ---------------------
+  # Ollama service
+  # ---------------------
+  ollama:
+    build:
+      context: ollama/.
+      dockerfile: Dockerfile
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    volumes:
+      - ollama_data:/root/.ollama
+    tty: true
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ "gpu" ]
+              count: all
+    networks:
+      - app_network
+
+# ---------------------
+# Define volumes
+# ---------------------
+volumes:
+  mongodata:
+  ollama_data:
+  pdf_storage:
+
 # ---------------------
 # Define the shared network
 # ---------------------
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  mongodata:
