@@ -211,13 +211,6 @@ class PdfDocumentPipeline:
         Run the ETL pipeline to extract, transform and load the parsed pdf documents into the Vector DB.
         """
         try:
-            # Check if cuda is available:
-            import torch
-            if torch.cuda.is_available():
-                logger.info("CUDA is available.")
-            else:
-                logger.info("CUDA is not available.")
-                exit(0)
             self._extract(pdf_files=pdf_files)
             self._transform()
             self._load_into_vdb()
