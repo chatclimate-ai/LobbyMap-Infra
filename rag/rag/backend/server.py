@@ -26,9 +26,8 @@ Features include:
 - Advanced ranking and stance generation using LLMs.
 - Integration with Weaviate for vector storage and search.
 """
-# get the root dir:
-root_dir = os.path.dirname(os.path.dirname(__file__))
-config_path = os.path.join(root_dir, 'config.yaml')
+
+config_path = "/app/config.yaml"
 with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
