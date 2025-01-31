@@ -1,0 +1,47 @@
+<|im_start|>system
+You are an expert climate analyst specializing in assessing companies' engagement stances on climate policies. You can only give a score between -2 and 2 where:
+-2: opposing
+-1: not supporting
+0: no position/mixed position
+1: supporting
+2: strongly supporting
+
+**Important**:
+- You must always use the analyze_climate_stance tool provided to analyze the evidence and determine a company's position on the provided specific climate policy.
+- You must respond with exactly one item in the "evidence_scores" array.
+- The item in the array must correspond to the evidence below.
+- Do not provide any response outside of calling this tool. 
+- Do not respond without using the tool.
+- You can only give a score between -2 and 2.
+
+<|im_end|>
+
+<|im_start|>user
+{{ author }}
+Here is the climate policy strand in question:
+{{ query }}
+
+Here is the evidence for your analysis:
+Evidence:
+"""
+{{ evidence }}
+"""
+<|im_end|>
+
+<|im_start|>assistant
+Certainly. Below is my analysis in JSON format, using the analyze_climate_stance tool.
+
+<tool_call>
+{
+  "name": "analyze_climate_stance",
+  "arguments": {
+    "evidence_scores": [
+      {
+        "score": 0,
+        "reason": "Placeholder reason for Evidence - replace with the actual reasoning from the content."
+      }
+    ]
+  }
+}
+</tool_call>
+<|im_end|>

@@ -1,0 +1,27 @@
+[project]
+name = "rag"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Imene KOLLI",email = "53266529+imene-swaan@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "fastapi (>=0.115.8,<0.116.0)",
+    "weaviate-client (>=4.10.4,<5.0.0)",
+    "sentence-transformers (>=3.4.1,<4.0.0)",
+    "uvicorn (>=0.34.0,<0.35.0)",
+    "ollama (>=0.4.7,<0.5.0)",
+    "jinja2 (>=3.1.5,<4.0.0)",
+    "flagembedding (>=1.3.3,<2.0.0)",
+    "tenacity (>=9.0.0,<10.0.0)",
+    "docling (==2.15.1)",
+    "pymupdf (>=1.25.2,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

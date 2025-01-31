@@ -18,7 +18,7 @@ services:
   # FastAPI service
   # ---------------------
   feedback_api:
-    build: lobby-map-fbtool/.
+    build: feedback-tool/.
     image: lobbymap-feedback-api:latest
     ports:
       - "8000:8000"

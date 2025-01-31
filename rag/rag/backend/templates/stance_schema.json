@@ -1,0 +1,32 @@
+{
+    "type": "function",
+    "function": {
+        "name": "analyze_climate_stance",
+        "description": "Provide a climate policy engagement stance for each piece of evidence on this company's climate policy.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "evidence_scores": {
+                    "type": "array",
+                    "description": "An array of scores and reasons for each piece of evidence.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "score": {
+                                "type": "integer",
+                                "enum": [-2, -1, 0, 1, 2],
+                                "description": "Score assessing the stance of the evidence towards the climate policy."
+                            },
+                            "reason": {
+                                "type": "string",
+                                "description": "Explanation for the given score, detailing why the score was assigned."
+                            }
+                        },
+                        "required": ["score", "reason"]
+                    }
+                }
+            },
+            "required": ["evidence_scores"]
+        }
+    }
+}

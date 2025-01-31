@@ -23,6 +23,7 @@ class FeedbackToolServer:
              
             """,
             version="0.0.1",
+            lifespan=self.lifespan,
         )
         self.mongo_uri = os.getenv("MONGODB_URI", "mongodb://lobbymap:lobbymap_pass@mongodb/feedback_db?retryWrites=true&w=majority")
         self.db_name = os.getenv("MONGO_INITDB_DATABASE", "feedback_db")
@@ -32,8 +33,8 @@ class FeedbackToolServer:
         self._add_routes()
 
         # Add startup and shutdown event handlers
-        self.app.on_event("startup")(self.connect_to_mongo)
-        self.app.on_event("shutdown")(self.close_mongo_connection)
+        # self.app.on_event("startup")(self.connect_to_mongo)
+        # self.app.on_event("shutdown")(self.close_mongo_connection)
 
     def _add_middlewares(self):
         self.app.add_middleware(
@@ -128,11 +129,19 @@ class FeedbackToolServer:
             "timestamp": feedback["timestamp"],
         }
 
-    async def connect_to_mongo(self):
+    # async def connect_to_mongo(self):
+    #     self.client = AsyncIOMotorClient(self.mongo_uri)
+    #     self.db = self.client[self.db_name]
+
+    # async def close_mongo_connection(self):
+    #     self.client.close()
+
+    async def lifespan(self, app: FastAPI):
+        # Startup: Connect to MongoDB
         self.client = AsyncIOMotorClient(self.mongo_uri)
         self.db = self.client[self.db_name]
-
-    async def close_mongo_connection(self):
+        yield
+        # Shutdown: Close MongoDB connection
         self.client.close()
 
 
