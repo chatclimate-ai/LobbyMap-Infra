@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir \
 COPY . /app
 
 # 6. Expose the port your FastAPI (or other framework) will listen on
-EXPOSE 8000
+EXPOSE 8001
 
 # 7. Define the command to run the app
-CMD ["uvicorn", "backend.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "backend.server:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
