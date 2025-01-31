@@ -42,7 +42,7 @@ def bge_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List
 
     model = FlagReranker(
         model_name,
-        use_fp16=True,
+        use_fp16=False,
         devices=["cuda:0"],
         )
 
