@@ -112,24 +112,30 @@ class EvidenceModel(BaseModel):
         ...,
         description="The rank score of the evidence coming from the ranker model",
     )
-    generated_stance: int = Field(
-        ...,
+    generated_stance: Optional[int] = Field(
+        default=None,
         description="The stance generated for the evidence by the LLM model",
     )
-    generated_stance_reason: str = Field(
-        ...,
+    generated_stance_reason: Optional[str] = Field(
+        default=None,
         description="The reason for the stance generated for the evidence by the LLM model",
     )
-    generated_stance_score: float = Field(
-        ...,
+    generated_stance_score: Optional[float] = Field(
+        default=None,
         description="The stance score generated for the evidence by the LLM model",
     )
     updated_rank: int = Field(
         ...,
         description="The updated rank after feedback",
     )
-    updated_status: Optional[Literal['approved', 'rejected']] = None
-    updated_generated_stance: Optional[int] = None
+    updated_status: Optional[Literal['approved', 'rejected']] = Field(
+        default="approved",
+        description="The updated status after feedback",
+    )
+    updated_generated_stance: Optional[int] = Field(
+        default=None,
+        description="The updated stance after feedback",
+    )
     timestamp: str = Field(
         ...,
         description="The timestamp of the feedback",
