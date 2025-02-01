@@ -1,7 +1,7 @@
 #### Parsing options ####
 DoclingParser_options:
   accelerator:
-    device: "auto" # "auto" or "cpu" or "cuda" or "mps"
+    device: "cuda" # "auto" or "cpu" or "cuda" or "mps"
     num_threads: 8
   ocr:
     do_ocr: True
