@@ -535,7 +535,7 @@ def upload_dialog():
                     st.error(f"File '{file_name}' already exists.")
                     return
 
-                size = uploaded_file.size
+                size = uploaded_file.size / (1024 * 1024)
                 os.makedirs(FILE_SYSTEM, exist_ok=True)
                 url = f"{FILE_SYSTEM_SERVER}/{file_name}"
                 file_path = f"{FILE_SYSTEM}/{file_name}"
