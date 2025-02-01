@@ -16,4 +16,4 @@ COPY . /app
 EXPOSE 8000
 
 # 6. Define the command to run the app
-CMD ["gunicorn", "-w", "10", "-k", "uvicorn.workers.UvicornWorker", "feedback-tool.api.server:app", "--bind", "0.0.0.0:8000"]
+CMD ["uvicorn", "feedback-tool.api.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
