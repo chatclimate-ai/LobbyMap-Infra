@@ -25,6 +25,7 @@ RUN pip install --no-cache-dir \
 # 5. Copy the rest of your application code
 COPY . /app
 
+WORKDIR /app/rag
 # 6. Expose the port your FastAPI (or other framework) will listen on
 EXPOSE 8001
 
