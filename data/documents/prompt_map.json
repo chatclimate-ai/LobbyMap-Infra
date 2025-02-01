@@ -1,0 +1,50 @@
+[
+    {
+        "query": "Q1: Climate Science Transparency",
+        "prompt": "Transparency around climate change science"
+    },
+    {
+        "query": "Q2: Climate Science Stance",
+        "prompt": "Position on the needed response to climate change science"
+    },
+    {
+        "query": "Q3: Need for Climate Regulation",
+        "prompt": "Support for regulations to tackle climate change in general"
+    },
+    {
+        "query": "Q4: The Paris Agreement",
+        "prompt": "Support for the UN Treaty on Climate Change"
+    },
+    {
+        "query": "Q5: Transparency on Legislation",
+        "prompt": "Transparency on positions on climate policy/legislations"
+    },
+    {
+        "query": "Q6: Carbon Tax",
+        "prompt": "Support for policies/regulation on carbon tax"
+    },
+    {
+        "query": "Q7: Emissions Trading",
+        "prompt": "Support for policies/regulation on emissions trading"
+    },
+    {
+        "query": "Q8: Energy Efficiency Standards",
+        "prompt": "Support for policies/regulation on energy efficiency standards"
+    },
+    {
+        "query": "Q9: Renewable Energy Legislation",
+        "prompt": "Support for policies/regulation on renewable energy legislation"
+    },
+    {
+        "query": "Q10: Energy Policy and Mix",
+        "prompt": "Support for policies/regulation on energy policy and mix"
+    },
+    {
+        "query": "Q11: GHG Emissions Standards",
+        "prompt": "Support for policies/regulation on GHG emissions standards"
+    },
+    {
+        "query": "Q12: Relationships",
+        "prompt": "Transparency on industry and policy engagement group relationships"
+    }
+]
