@@ -14,74 +14,6 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
 
 ---
 
-## Project Structure
-.
-├── README.md
-├── config.yaml
-├── data
-│   ├── documents
-│   └── weaviate_data
-├── docker-compose.yml
-├── feedback-tool
-│   ├── Dockerfile
-│   ├── feedback-tool
-│   │   ├── __init__.py
-│   │   └── api
-│   │       ├── __init__.py
-│   │       ├── schema.py
-│   │       └── server.py
-│   ├── poetry.lock
-│   ├── pyproject.toml
-│   ├── requirements.txt
-│   └── tests
-├── frontend
-│   ├── Dockerfile
-│   ├── README.md
-│   ├── frontend
-│   │   ├── __init__.py
-│   │   ├── ui.py
-│   │   └── utils.py
-│   ├── images
-│   ├── poetry.lock
-│   ├── pyproject.toml
-│   ├── requirements.txt
-│   └── tests
-├── ollama
-│   ├── Dockerfile
-│   └── pull-models.sh
-├── pdf_manager
-│   └── Dockerfile
-└── rag
-    ├── Dockerfile
-    ├── README.md
-    ├── poetry.lock
-    ├── pyproject.toml
-    ├── rag
-    │   ├── __init__.py
-    │   ├── backend
-    │   │   ├── __init__.py
-    │   │   ├── server.py
-    │   │   ├── templates
-    │   │   │   ├── stance_prompt.jinja
-    │   │   │   └── stance_schema.json
-    │   │   └── utils.py
-    │   └── lobbymap_search
-    │       ├── __init__.py
-    │       └── etl
-    │           ├── __init__.py
-    │           ├── chunker.py
-    │           ├── parser.py
-    │           ├── parsers
-    │           │   ├── docling_parse.py
-    │           │   ├── pymupdf_parse.py
-    │           │   └── schemas.py
-    │           ├── pipeline.py
-    │           └── schemas.py
-    ├── requirements.txt
-    └── tests
-
----
-
 ## Features
 
 - **Multilingual Support:** Handles documents in multiple languages using multilingual embedding models.
@@ -91,34 +23,59 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
 
 ---
 
-## Installation
+## Using the system in a VM in VastAI
 
-1. Clone the repository:
+#### 1. Create an account in VastAI and set up an instance:
+- Create an account in VastAI, add you ssh key in the settings, and top up your account.
+- Choose an instance with a docker template.
+- Go to the `~/.ssh/config` on your local machine and add the following info (from the selected instance):
+    ```
+    Host lobbymap-vast
+        HostName 136.38.166.236 # The IP of the instance
+        Port 34873 # The port of the instance
+        User root
+        LocalForward 8000 localhost:8000 # The port of the Feedback API
+        LocalForward 8001 localhost:8001 # The port of the RAG API
+        LocalForward 8501 localhost:8501 # The port of the Frontend
+        LocalForward 8002 localhost:8002 # The port of the PDF viewer
+    ```
+- To connect to your instance use the following command: `ssh lobbymap-vast`
+
+
+#### 2. Add ssh key to Github to clone the code from the VM
+
+- Generate a new ssh key in the VM using the following command:
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+- Start the SSH agent
+    ```bash
+    eval "$(ssh-agent -s)"
+    ```
+- Add the SSH key to the SSH agent
+    ```bash
+    ssh-add ~/.ssh/id_ed25519
+    ```
+- Copy the SSH key to the clipboard
+    ```bash
+    cat ~/.ssh/id_ed25519.pub
+    ```
+- Add the key to Github, now you can clone the repo using the SSH key.
+
+#### 3. Installation
+
+- Create a new directory:
+    ```bash
+    mkdir Projects
+    cd Projects
+    ```
+- Clone the repository to the Virtual Machine (VM) using the following command:
    ```bash
    git clone https://github.com/chatclimate-ai/LobbyMap-Infra.git
    cd LobbyMap-Infra
    ```
-2. Install dependencies using Poetry:
-   ```bash
-   poetry install
-   ```
 
-## Using the project repo in a VM in VastAI
-
-- Create an account in VastAI, add you ssh key in the settings, and top up your account.
-- Choose an instance and then select it with preferably a docker template.
-- Go to the `~/.ssh/config` and add the following info that you will get from your instance:
-    ```
-    Host lobbymap-vast
-      HostName 136.38.166.236
-      Port 34873
-      User root
-      LocalForward 8080 localhost:8080
-      LocalForward 8000 localhost:8000
-    ```
-- To connect to your instance use the following command: `ssh lobbymap-vast`
-
-### Add Nvidia-Docker support to your instance:
+#### 4. Add Nvidia-Docker support to your instance:
 
 - Install Nvidia-Docker:
     ```bash
@@ -149,53 +106,74 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
     ```bash
     apt  install docker-compose
     ```
+
+#### 5. Run the Docker Compose:
 - Now you can run the docker compose with Nvidia support using the following command:
     ```bash
     docker-compose up --build
     ```
-## Add ssh key to Github to clone the code from the VM
-
-- Generate a new ssh key in the VM using the following command:
-    ```bash
-    ssh-keygen -t ed25519 -C "your_email@example.com"
-    ```
-- Start the SSH agent
-    ```bash
-    eval "$(ssh-agent -s)"
-    ```
-- Add the SSH key to the SSH agent
-    ```bash
-    ssh-add ~/.ssh/id_ed25519
-    ```
-- Copy the SSH key to the clipboard
-    ```bash
-    cat ~/.ssh/id_ed25519.pub
-    ```
-- Add the key to Github, now you can clone the repo using the SSH key.
+---
 
 ## Usage
 
-1. **Configuration**:
-    In the `config.yaml` file, set the parameters of the pipeline, including the parsing, chunking, and retrieval methods. The default configuration is provided in the `config.yaml` file.
-
-2. **Docker Setup**:
-    Launch the Docker Compose setup from the root directory:
-    ```bash
-    docker compose up -d --build
-    ```
-
-
-3. **Query and Retrieve:**
-   Use `Postman` or `Curl` to send requests to the server with the query and filter parameters:
-    ```bash
-    curl -X 'GET' \
-      'http://rag_api:8001/retrieve/filter?query=energy transition %26 zero carbon technologies&top_k=2' \
-      -H 'accept: application/json'
-    ```
-    The server will return the most relevant chunks. For other Endpoints, refer to the `http://rag_api:8001/docs`.
+#### 1. Query and Retrieve:
+Use `Postman` or `Curl` to send requests to the Rag API with the query and filter parameters. For example:
+```bash
+curl -X 'GET' \
+    'http://localhost:8001/retrieve/filter?query=energy transition %26 zero carbon technologies&top_k=2' \
+    -H 'accept: application/json'
+```
+The server will return the most relevant chunks. For other Endpoints, refer to the `http://localhost:8001/docs`.
 
 
-4. **Frontend Interface:**
-   The interface will be available at `http://frontend:8501`.
+#### 2. Frontend Interface:
+- The interface will be available at `http://localhost:8501`.
+- To upload a PDF file, click on the `Upload PDF` button and select the file. The system will prompt you to enter the author, region, and date of the document. The `author` field is required, while the `region` and `date` fields are optional.
+- All files available in the system will be displayed in the `Files` section. 
+- Click on the `View` button to see the content of the file. The file will open in a new browser tab at `http://localhost:8002/file.pdf`.
    
+#### 3. Feedback API:
+The Feedback API will be available at `http://localhost:8000`. To get all collected feedback from the `MongoDB` database, use the following command:
+```bash
+curl -X 'GET' \
+    'http://127.0.0.1:8000/feedback/' \
+    -H 'accept: application/json'
+```
+
 ---
+
+## Development
+
+#### 1. Add New Models:
+To add new models, update the `ollama/pull-models.sh` file with the new model names. Then, rebuild the Docker containers using the following command:
+```bash
+docker-compose up --build
+```
+
+#### 2. Update the RAG Vector Database:
+- To add a new document to the RAG vector database, use the Frontend interface or the RAG API with the following command:
+```bash
+curl -X 'GET' \
+    'http://localhost:8001/insert' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+    "file_path": "/path/to/file.pdf", # Required
+    "author": "Author", # Required
+    "region": "Region",
+    "date": "Date"
+    }'
+```
+
+- To delete a document from the RAG vector database, use the following command:
+```bash
+curl -X 'GET' \ 
+    'http://localhost:8001/delete' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+    "file_name": "file.pdf" # Required
+    }'
+```
+
+
