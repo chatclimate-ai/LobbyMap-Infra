@@ -104,11 +104,15 @@ class FeedbackToolServer:
                     "model_name": feedback["artifacts"]["parser"]["model_name"],
                     "options": feedback["artifacts"]["parser"].get("options"),
                 },
+                "chunker": {
+                    "chunking_method": feedback["artifacts"]["chunker"]["chunking_method"],
+                    "options": feedback["artifacts"]["chunker"].get("options"),
+                },
                 "rag_components": {
-                    "chunking_method": feedback["artifacts"]["rag_components"]["chunking_method"],
-                    "chunking_similarity_threshold": feedback["artifacts"]["rag_components"]["chunking_similarity_threshold"],
+                    "collection_name": feedback["artifacts"]["rag_components"]["collection_name"],
                     "vectorizer_model_name": feedback["artifacts"]["rag_components"]["vectorizer_model_name"],
                     "reranker_model_name": feedback["artifacts"]["rag_components"]["reranker_model_name"],
+                    "generator_model_name": feedback["artifacts"]["rag_components"]["generator_model_name"],
                 },
             },
             "pdf_doc_name": feedback["pdf_doc_name"],
