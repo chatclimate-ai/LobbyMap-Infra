@@ -383,7 +383,7 @@ def new_prompt_dialog():
 
 def render_sidebar():
     """
-    Render the sidebar with filtering options and a "Clear Chat" button.
+    Render the sidebar with filtering options.
     Returns the user's input for filtering and how many docs to retrieve.
     """
     author, date, region, filename, num_documents = None, None, None, None, 5
@@ -607,6 +607,7 @@ def handle_chat_input(author, date, region, filename, num_documents):
             st.session_state.messages = []
             st.session_state.removals = {}
             st.session_state.ranks = {}
+            st.session_state.generated_stances = {}
             st.rerun()
     
     if st.session_state.show_upload_dialog:
