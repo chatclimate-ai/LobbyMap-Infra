@@ -56,7 +56,7 @@ Weaviate_options:
 
 Backend:
   file_system: "/app/data/documents"
-  file_system_server: "http://pdf_server:8002" # VAST_IP:8002
+  file_system_server: "http://localhost:8002" # pdf_server:8002 # VAST_IP:8002
   data_map: "data_map.json"
   prompt_map: "prompt_map.json"
 

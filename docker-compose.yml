@@ -10,27 +10,15 @@ services:
     depends_on:
       - feedback_api
       - rag_api
+      - pdf_server
     ports:
       - "8501:8501"
     
     volumes:
       - ./config.yaml:/app/config.yaml
-      - pdf_storage:/app/data/documents
+      - ./data/documents:/app/data/documents
     networks:
       - app_network
-  
-  # ---------------------
-  # PDF Manager
-  # ---------------------
-  pdf_manager:
-    build: pdf_manager/.
-    image: pdf_manager:latest
-    volumes:
-      - pdf_storage:/app/data/documents
-    command: "true"
-    networks:
-      - app_network
-    restart: "no"
 
   
   # ---------------------
@@ -41,11 +29,8 @@ services:
     container_name: pdf_server
     working_dir: /app/data/documents
     volumes:
-      - pdf_storage:/app/data/documents
-      - ./config.yaml:/app/config.yaml
+      - ./data/documents:/app/data/documents
     command: python -m http.server 8002
-    depends_on:
-      - pdf_manager 
     ports:
       - "8002:8002"
     networks:
@@ -122,17 +107,16 @@ services:
     depends_on:
       - weaviate
       - ollama
-      - pdf_server
     volumes:
       - ./config.yaml:/app/config.yaml
-      - pdf_storage:/app/data/documents
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ "gpu" ]
+      - ./data/documents:/app/data/documents
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [ "gpu" ]
     networks:
       - app_network
 
@@ -182,13 +166,13 @@ services:
       - ollama_data:/root/.ollama
     tty: true
     restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [ "gpu" ]
-              count: all
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           capabilities: [ "gpu" ]
+    #           count: all
     networks:
       - app_network
 
@@ -198,7 +182,6 @@ services:
 volumes:
   mongodata:
   ollama_data:
-  pdf_storage:
 
 # ---------------------
 # Define the shared network

@@ -3,7 +3,7 @@ import requests
 import datetime
 import yaml
 import os
-from frontend.utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
+from utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
 
 
 config_path = "/app/config.yaml"
