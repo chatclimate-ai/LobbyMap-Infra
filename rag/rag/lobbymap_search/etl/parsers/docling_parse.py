@@ -145,8 +145,8 @@ class DoclingPDFParser:
             # device settings
             accelerator: dict = kwargs.get("accelerator", {})
             accelerator_options = AcceleratorOptions(
-                num_threads=accelerator.get("num_threads", 4),
-                device=accelerator.get("device", AcceleratorDevice.AUTO),
+                num_threads=accelerator.get("num_threads", 8),
+                device=accelerator.get("device", AcceleratorDevice.CUDA),
             )
             pipeline_options.accelerator_options = accelerator_options
 

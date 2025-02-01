@@ -110,13 +110,13 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml
       - ./data/documents:/app/data/documents
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [ "gpu" ]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ "gpu" ]
     networks:
       - app_network
 
@@ -166,13 +166,13 @@ services:
       - ollama_data:/root/.ollama
     tty: true
     restart: unless-stopped
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           capabilities: [ "gpu" ]
-    #           count: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [ "gpu" ]
+              count: all
     networks:
       - app_network
 

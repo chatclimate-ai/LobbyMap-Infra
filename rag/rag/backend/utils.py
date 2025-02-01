@@ -43,7 +43,7 @@ def bge_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List
     model = FlagReranker(
         model_name,
         use_fp16=False,
-        # devices=["cuda:0"],
+        devices=["cuda:0"],
         )
 
     sentence_pairs = [[query, evidence] for evidence in evidence_contents]
@@ -58,8 +58,8 @@ def cross_encoder_rerank(model_name:str, query: str, evidence_contents: List[str
     """
     model = CrossEncoder(
         model_name,
-        # automodel_args={"torch_dtype": "auto"},
-        # trust_remote_code=True,
+        automodel_args={"torch_dtype": "auto"},
+        trust_remote_code=True,
     )
    
     sentence_pairs = [[query, evidence] for evidence in evidence_contents]
