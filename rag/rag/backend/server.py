@@ -357,7 +357,7 @@ async def insert(
         author: str,
         date: Optional[str] = "",
         region: Optional[str] = "",
-        size: Optional[int] = 0.0
+        size: Optional[float] = 0.0
     ):
 
     pdf_files = [

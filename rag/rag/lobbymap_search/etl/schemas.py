@@ -34,6 +34,9 @@ class DocumentInput(BaseModel):
             self.metadata.size = os.path.getsize(self.file_path) / (1024 * 1024)
             # round to 2 decimal places
             self.metadata.size = round(self.metadata.size, 2)
+        
+        else:
+            self.metadata.size = round(self.metadata.size, 2)
         return self
 
 
