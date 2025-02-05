@@ -46,7 +46,7 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
 
 - Generate a new ssh key in the VM using the following command:
     ```bash
-    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ssh-keygen -t ed25519 -C "imenekolli@outlook.com"
     ```
 - Start the SSH agent
     ```bash
