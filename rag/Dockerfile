@@ -30,4 +30,4 @@ WORKDIR /app/rag
 EXPOSE 8001
 
 # 7. Define the command to run the app
-CMD ["uvicorn", "backend.server:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+CMD ["gunicorn", "backend.server:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]
