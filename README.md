@@ -43,25 +43,27 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
 
 #### 1.1 Create an EC2 instance and add these requirements in the additional details:
 
+```bash
 #!/bin/bash
 sudo apt-get update -y
 sudo apt-get upgrade -y
 
-- If Docker is already installed in the Deep Learning AMI, this will ensure it's up to date
+# If Docker is already installed in the Deep Learning AMI, this will ensure it's up to date
 sudo apt-get install -y docker.io
 
-- Enable Docker service on boot
+# Enable Docker service on boot
 sudo systemctl enable docker
 sudo systemctl start docker
 
-- Grab the latest Docker Compose from GitHub releases (adjust version if desired)
+# Grab the latest Docker Compose from GitHub releases (adjust version if desired)
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.16.0/docker-compose-$(uname -s)-$(uname -m)" \
   -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
-- This lets you run 'docker' without sudo
+# This lets you run 'docker' without sudo
 sudo usermod -aG docker ubuntu
 sudo reboot
+```
 
 #### 2. Add ssh key to Github to clone the code from the VM
 
