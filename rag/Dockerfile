@@ -1,33 +1,46 @@
-FROM python:3.12-slim
+# Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.6.1).
+FROM nvidia/cuda:12.6.1-runtime-ubuntu24.04
 
-# 1. Set working directory
-WORKDIR /app
-
-# 2. Install system dependencies
+# Install system dependencies needed for Python, building, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-venv \
+    python3-dev \
+    python3-pip \
     build-essential \
     zlib1g-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# 3. Copy only requirements.txt first for caching
+# Create and activate a virtual environment in /opt/venv
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Upgrade pip inside the virtual environment
+RUN pip install --upgrade pip
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only requirements.txt first (for layer caching)
 COPY requirements.txt /app/
 
-# 4. Install dependencies with pip
+# Install dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4.1 Install PyTorch and TorchVision from the specific index URL
+# Install PyTorch/TorchVision with CUDA 12.1 support
 RUN pip install --no-cache-dir \
     torch \
     torchvision \
     --index-url https://download.pytorch.org/whl/cu121
 
-
-# 5. Copy the rest of your application code
+# Copy the rest of your application code
 COPY . /app
 
+# Switch to the rag folder
 WORKDIR /app/rag
-# 6. Expose the port your FastAPI (or other framework) will listen on
+
+# Expose the port that gunicorn will listen on
 EXPOSE 8001
 
-# 7. Define the command to run the app
-CMD ["gunicorn", "backend.server:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]
+# Launch gunicorn with uvicorn workers
+CMD ["gunicorn", "backend.server:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001", "--timeout", "300"]
