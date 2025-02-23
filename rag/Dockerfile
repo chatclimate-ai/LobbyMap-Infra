@@ -1,7 +1,7 @@
 # Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.6.1).
 FROM nvidia/cuda:12.6.1-runtime-ubuntu24.04
 
-# Install system dependencies needed for Python, building, etc.
+# Install system dependencies needed for Python, building.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-venv \
