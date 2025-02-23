@@ -21,8 +21,6 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
 - **Dynamic Chunking:** Adapts chunk sizes based on layout structure and token limits.
 - **Efficient Retrieval:** Uses vector databases for fast and scalable similarity search.
 
----
-
 ## Using the system in a VM in VastAI
 
 #### 1. Create an account in VastAI and set up an instance:
@@ -39,8 +37,43 @@ The RAG system combines state-of-the-art parsing, chunking, embedding, and retri
         LocalForward 8501 localhost:8501 # The port of the Frontend
         LocalForward 8002 localhost:8002 # The port of the PDF viewer
     ```
-- To connect to your instance use the following command: `ssh lobbymap-vast`
+- To connect to your instance use the following command: `ssh lobbymap-vast`---
 
+## Using AWS EC2 instances
+
+#### 1.1 Create an EC2 instance and add these requirements in the additional details:
+
+#!/bin/bash
+#----------------------------
+# 1. Update system packages
+#----------------------------
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
+#----------------------------
+# 2. Install Docker
+#----------------------------
+# If Docker is already installed in the Deep Learning AMI, this will ensure it's up to date
+sudo apt-get install -y docker.io
+
+# Enable Docker service on boot
+sudo systemctl enable docker
+sudo systemctl start docker
+
+#----------------------------
+# 3. Install Docker Compose
+#----------------------------
+# Grab the latest Docker Compose from GitHub releases (adjust version if desired)
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.16.0/docker-compose-$(uname -s)-$(uname -m)" \
+  -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+#----------------------------
+# 4. Add 'ubuntu' user to 'docker' group
+#----------------------------
+# This lets you run 'docker' without sudo
+sudo usermod -aG docker ubuntu
+sudo reboot
 
 #### 2. Add ssh key to Github to clone the code from the VM
 
