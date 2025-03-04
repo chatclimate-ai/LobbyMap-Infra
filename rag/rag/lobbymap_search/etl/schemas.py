@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal
 from typing_extensions import Self
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 import os
@@ -14,6 +14,17 @@ class InputMetadata(BaseModel):
     date: Optional[str] = ""
     region: Optional[str] = ""
     size: Optional[float] = 0.0
+    language: Optional[Literal["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]] = "latin-based"
+
+    @model_validator(mode='after')
+    def lower_case(self) -> Self:
+        """
+        """
+        self.author = self.author.lower()
+        self.date = self.date.lower()
+        self.region = self.region.lower()
+        self.language = self.language.lower()
+        return self
 
 
 class DocumentInput(BaseModel):
@@ -69,6 +80,7 @@ class PdfDocument(BaseModel):
     date: Optional[str] = ""
     region: Optional[str] = ""
     size: Optional[float] = 0.0
+    language: Optional[Literal["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]] = "latin-based"
     content: str = Field(default="")
 
     @model_validator(mode='after')
@@ -93,6 +105,7 @@ class MarkdownDocument(BaseModel):
     date: Optional[str] = ""
     region: Optional[str] = ""
     size: Optional[float] = 0.0
+    language: Optional[Literal["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]] = "latin-based"
     content: str = Field(default="")
 
     @model_validator(mode='after')

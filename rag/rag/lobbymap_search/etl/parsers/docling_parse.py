@@ -16,7 +16,7 @@ from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
 from docling_core.types.doc import PictureItem, TableItem, ImageRefMode, DoclingDocument
 import pandas as pd
 from PIL import Image
-from typing import Union, List, Generator, Dict
+from typing import Union, List, Generator, Dict, Optional, Literal
 from .schemas import ParserOutput
 import sys
 
@@ -101,6 +101,7 @@ class DoclingPDFParser:
         self,
         paths: Union[str, List[str]],
         modalities: List[str] = ["text", "tables", "images"],
+        ocr_language: Optional[Literal["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]] = "latin-based",
         **kwargs,
     ) -> List[ParserOutput]:
         """
@@ -138,63 +139,63 @@ class DoclingPDFParser:
         if isinstance(paths, str):
             paths = [paths]
 
-        if not self.initialized:
-            # Set pipeline options
-            pipeline_options = PdfPipelineOptions()
+        # if not self.initialized:
+        # Set pipeline options
+        pipeline_options = PdfPipelineOptions()
 
-            # device settings
-            accelerator: dict = kwargs.get("accelerator", {})
-            accelerator_options = AcceleratorOptions(
-                num_threads=accelerator.get("num_threads", 8),
-                device=accelerator.get("device", AcceleratorDevice.CUDA),
-            )
-            pipeline_options.accelerator_options = accelerator_options
+        # device settings
+        accelerator: dict = kwargs.get("accelerator", {})
+        accelerator_options = AcceleratorOptions(
+            num_threads=accelerator.get("num_threads", 8),
+            device=accelerator.get("device", AcceleratorDevice.CUDA),
+        )
+        pipeline_options.accelerator_options = accelerator_options
 
-            # Set ocr options
-            ocr = kwargs.get("ocr", {})
-            pipeline_options.do_ocr = ocr["do_ocr"]
-            
-            if ocr["engine"] == "easyocr":
-                pipeline_options.ocr_options = EasyOcrOptions(**ocr["easyocr_settings"])
+        # Set ocr options
+        ocr = kwargs.get("ocr", {})
+        pipeline_options.do_ocr = ocr["do_ocr"]
+        
+        if ocr["engine"] == "easyocr":
+            pipeline_options.ocr_options = EasyOcrOptions(**ocr["easyocr_settings"], lang=self.map_language(ocr_language))
 
-            elif ocr["engine"] == "tesseract":
-                pipeline_options.ocr_options = TesseractOcrOptions(**["tesseract_settings"])
-            
-            elif ocr["engine"] == "ocrmac":
-                pipeline_options.ocr_options = OcrMacOptions(**ocr["ocrmac_settings"])
-            
-            elif ocr["engine"] == "rapidocr":
-                pipeline_options.ocr_options = RapidOcrOptions(**ocr["rapidocr_settings"])
-            else:
-                raise NotImplementedError(f"Invalid OCR options specified: {ocr['engine']}")
+        elif ocr["engine"] == "tesseract":
+            pipeline_options.ocr_options = TesseractOcrOptions(**["tesseract_settings"])
+        
+        elif ocr["engine"] == "ocrmac":
+            pipeline_options.ocr_options = OcrMacOptions(**ocr["ocrmac_settings"])
+        
+        elif ocr["engine"] == "rapidocr":
+            pipeline_options.ocr_options = RapidOcrOptions(**ocr["rapidocr_settings"])
+        else:
+            raise NotImplementedError(f"Invalid OCR options specified: {ocr['engine']}")
 
-            # Set table structure options
-            table = kwargs.get("table", {})
-            pipeline_options.do_table_structure = table["do_table_structure"]
+        # Set table structure options
+        table = kwargs.get("table", {})
+        pipeline_options.do_table_structure = table["do_table_structure"]
 
-            pipeline_options.table_structure_options = TableStructureOptions(
-                **table["table_structure_options"]
-            )
-            
-            # Set image options
-            image = kwargs.get("image", {})
-            pipeline_options.images_scale = image["images_scale"]
-            pipeline_options.generate_page_images = image["generate_page_images"]
-            pipeline_options.generate_picture_images = image["generate_picture_images"]
+        pipeline_options.table_structure_options = TableStructureOptions(
+            **table["table_structure_options"]
+        )
+        
+        # Set image options
+        image = kwargs.get("image", {})
+        pipeline_options.images_scale = image["images_scale"]
+        pipeline_options.generate_page_images = image["generate_page_images"]
+        pipeline_options.generate_picture_images = image["generate_picture_images"]
 
-            # Set backend
-            backend = kwargs.get("backend", "docling")
-            if backend == "docling":
-                backend = DoclingParseDocumentBackend
-            elif backend == "pypdfium":
-                backend = PyPdfiumDocumentBackend
-            else:
-                raise ValueError(f"Invalid backend specified: {backend}")
+        # Set backend
+        backend = kwargs.get("backend", "docling")
+        if backend == "docling":
+            backend = DoclingParseDocumentBackend
+        elif backend == "pypdfium":
+            backend = PyPdfiumDocumentBackend
+        else:
+            raise ValueError(f"Invalid backend specified: {backend}")
 
-            self.embed_images = kwargs.get("embed_images", True)
+        self.embed_images = kwargs.get("embed_images", True)
 
-            # Initialize the Docling Parser
-            self.__initialize_docling(pipeline_options, backend)
+        # Initialize the Docling Parser
+        self.__initialize_docling(pipeline_options, backend)
 
         data = []
         for i, result in enumerate(self.load_documents(paths, **kwargs)):
@@ -289,3 +290,148 @@ class DoclingPDFParser:
         return item.export_to_markdown(
             image_mode=ImageRefMode.PLACEHOLDER,
         )
+    
+    @staticmethod
+    def map_language(language:str) -> List[str]:
+        if language == "latin-based":
+            return [
+                "af",
+                "az",
+                "bs",
+                "cs",
+                "cy",
+                "da",
+                "de",
+                "en",
+                "es",
+                "et",
+                "fr",
+                "ga",
+                "hr",
+                "hu",
+                "id",
+                "is",
+                "it",
+                "ku",
+                "la",
+                "lt",
+                "lv",
+                "mi",
+                "ms",
+                "mt",
+                "nl",
+                "no",
+                "oc",
+                "pi",
+                "pl",
+                "pt",
+                "ro",
+                "rs_latin",
+                "sk",
+                "sl",
+                "sq",
+                "sv",
+                "sw",
+                "tl",
+                "tr",
+                "uz",
+                "vi"
+            ]
+        elif language == "arabic-based":
+            return [
+                "ar",
+                "fa",
+                "ug",
+                "ur",
+                "en"
+
+                ]
+        elif language == "bengali-based":
+            return [
+                "as",
+                "bn",
+                "en"
+            ]
+        elif language == "cyrillic-based":
+            return [
+                "ru",
+                "rs_cyrillic",
+                "be",
+                "bg",
+                "uk",
+                "mn",
+                "abq",
+                "ady",
+                "kbd",
+                "ava",
+                "dar",
+                "inh",
+                "che",
+                "lbe",
+                "lez",
+                "tab",
+                "tjk",
+                "en"
+            ]
+     
+        elif language == "devanagari-based":
+            return [
+                "hi",
+                "mr",
+                "ne",
+                "bh",
+                "mai",
+                "ang",
+                "bho",
+                "mah",
+                "sck",
+                "new",
+                "gom",
+                "en"
+            ]
+        
+        elif language == "chinese-traditional":
+            return [
+                "ch_tra",
+                "en"
+            ]
+
+        elif language == "chinese-simplified":
+            return [
+                "ch_sim",
+                "en"
+            ]
+        
+        elif language == "japanese":
+            return [
+                "ja",
+                "en"
+            ]
+        
+        elif language == "korean":
+            return [
+                "ko",
+                "en"
+            ]
+        
+        elif language == "kannada":
+            return [
+                "kn",
+                "en"
+            ]
+        
+        elif language == "telugu":
+            return [
+                "te",
+                "en"
+            ]
+        
+        elif language == "thai":
+            return [
+                "th",
+                "en"
+            ]
+        else:
+            return [
+                "en"
+            ]

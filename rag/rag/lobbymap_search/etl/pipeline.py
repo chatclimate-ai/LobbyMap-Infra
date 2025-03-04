@@ -89,6 +89,7 @@ class PdfDocumentPipeline:
                             Property(name="date", data_type=DataType.TEXT),
                             Property(name="region", data_type=DataType.TEXT),
                             Property(name="size", data_type=DataType.NUMBER),
+                            Property(name= "language", data_type=DataType.TEXT),
                             Property(name="content", data_type=DataType.TEXT),
                         ]
                     )
@@ -144,21 +145,38 @@ class PdfDocumentPipeline:
             regex_pattern = r"<!-- image -->"
             doc.content = re.sub(regex_pattern, "", doc.content).strip()
 
+            regex_pattern = r"\\{1,2}_"
+            doc.content = re.sub(regex_pattern, ".", doc.content).strip()
+
             if not doc.content:
                 doc.content = "File is empty after Parsing"
 
             # Chunk the parsed content
             for chunk in self.chunker.chunk(doc.content):
-                self.parsed_pdfs += [
-                    PdfDocument(
-                        file_name=doc.file_name,
-                        author=doc.author,
-                        date=doc.date,
-                        region=doc.region,
-                        size=doc.size,
-                        content=chunk
-                    )
-                ]
+                if doc.file_name.endswith(".pdf"):
+                    self.parsed_pdfs += [
+                        PdfDocument(
+                            file_name=doc.file_name,
+                            author=doc.author,
+                            date=doc.date,
+                            region=doc.region,
+                            size=doc.size,
+                            language=doc.language,
+                            content=chunk
+                        )
+                    ]
+                else:
+                    self.parsed_pdfs += [
+                        MarkdownDocument(
+                            file_name=doc.file_name,
+                            author=doc.author,
+                            date=doc.date,
+                            region=doc.region,
+                            size=doc.size,
+                            language=doc.language,
+                            content=chunk
+                        )
+                    ]
 
 
 
