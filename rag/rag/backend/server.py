@@ -307,13 +307,14 @@ async def read_files_from_collection() -> Dict:
             file_properties = collection.query.fetch_objects(
                 filters=filter_criteria, 
                 limit=1,
-                return_properties=["author", "date", "region", "size"]
+                return_properties=["author", "date", "region", "size", "language"]
                 ).objects[0].properties
 
             file["date"] = file_properties["date"]
             file["author"] = file_properties["author"]
             file["region"] = file_properties["region"]
             file["size"] = file_properties["size"]
+            file["language"] = file_properties["language"]
             file["url"] = FILE_SYSTEM_SERVER + "/" +  file["file_name"]
         
         return {"files": result}
@@ -357,7 +358,8 @@ async def insert(
         author: str,
         date: Optional[str] = "",
         region: Optional[str] = "",
-        size: Optional[float] = 0.0
+        size: Optional[float] = 0.0,
+        language: Optional[str] = "latin-based"
     ):
 
     pdf_files = [
@@ -367,7 +369,8 @@ async def insert(
                 author=author, 
                 date=date, 
                 region=region,
-                size=size
+                size=size,
+                language=language
             )
         )
     ]
