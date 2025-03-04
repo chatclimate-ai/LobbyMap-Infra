@@ -124,12 +124,23 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
         date = doc.get("date", "N/A")
         region = doc.get("region", "N/A")
         file_name = doc.get("file_name", "N/A")
+        conf_score = evidence_item.get("confidence_score", 0.0)
     
         # 1) Display truncated content with a popover for the full text
         if content:
+            # st.text(truncate_content(f"{content}\n\n", 30))
+            # with st.popover("Read more"):
+            #     st.text(content)
             st.text(truncate_content(f"{content}\n\n", 30))
-            with st.popover("Read more"):
-                st.text(content)
+            col1, col2 = st.columns([1, 1])
+
+            with col1:
+                with st.popover("Read more"):
+                    st.text(content)
+            
+            with col2:
+                with st.popover("Reveal score"):
+                    st.markdown(f"Confidence Score: {conf_score:.3f}")
 
         # 2) Display metadata
         with st.expander("View Metadata"):
@@ -339,15 +350,29 @@ def filter_options():
     Default filter options for the sidebar.
     """
     st.header("Filter Options")
-    author = st.text_input('Author (optional)')
-    date = st.text_input('Date (optional)')
-    region = st.text_input('Region (optional)')
+    author = st.text_input('Author (optional)').lower()
+    date = st.text_input('Date (optional)').lower()
+    region = st.text_input('Region (optional)').lower()
     filename = st.text_input('Filename (optional)')
+
     num_documents = st.number_input(
-        'Number of documents to return',
+        'Maximum number of extracts',
         min_value=1,
         value=5
     )
+
+    min_confidence = st.slider(
+        "Minimum Confidence Score",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.5,
+        step=0.01
+    )
+
+    toggle = st.toggle("Use the confidence score", False)
+
+    if toggle:
+        return author, date, region, filename, min_confidence
 
     return author, date, region, filename, num_documents
 
@@ -515,9 +540,13 @@ def render_sidebar():
 @st.dialog("Upload File and Add Metadata")
 def upload_dialog():
     uploaded_file = st.file_uploader("Choose a file", type=["pdf"])
-    author = st.text_input("Author")
-    Date = st.text_input("Date")
-    Region = st.text_input("Region")
+    author = st.text_input("Author").lower()
+    Date = st.text_input("Date").lower()
+    Region = st.text_input("Region").lower()
+
+    options = ["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]
+    default_option = "latin-based"
+    language = st.selectbox("Choose a language type:", options, index=options.index(default_option))
 
     col1, col2 = st.columns([1, 1], gap="small", vertical_alignment="top")
 
@@ -542,32 +571,40 @@ def upload_dialog():
 
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
-
+                
                 with st.spinner("Processing file..."):
                     # Make upload call
-                    num_chunks = upload_call(
-                        file_path=file_path,
-                        author=author,
-                        date=Date,
-                        region=Region,
-                        size=size
-                    )["num_chunks"]
+                    try:
+                        num_chunks = upload_call(
+                            file_path=file_path,
+                            author=author,
+                            date=Date,
+                            region=Region,
+                            size=size,
+                            language=language
+                        )["num_chunks"]
 
-                # Re-write the Data Map
-                new_file = {
-                        "file_name": file_name,
-                        "author": author,
-                        "date": Date,
-                        "degion": Region,
-                        "size": size,
-                        "url": url,
-                        "num_chunks": num_chunks
-                    }
-                
-                add_to_collection(DATA_MAP, new_file)
-                st.session_state.upload_success = f"File '{file_name}' and metadata submitted."
-                st.rerun()
-
+                        # Re-write the Data Map
+                        new_file = {
+                                "file_name": file_name,
+                                "author": author,
+                                "date": Date,
+                                "degion": Region,
+                                "size": size,
+                                "url": url,
+                                "language": language,
+                                "num_chunks": num_chunks
+                            }
+                        
+                        add_to_collection(DATA_MAP, new_file)
+                        st.session_state.upload_success = f"File '{file_name}' and metadata submitted."
+                        st.rerun()
+                    
+                    except Exception as e:
+                        st.session_state.upload_fail = f"An error occurred while processing the file {file_name}. Please try again. {str(e)}"
+                        # delete the file 
+                        # os.remove(file_path)
+                        st.rerun()
 
     with col2:
         if st.button("Cancel", key="cancel_upload"):
@@ -616,6 +653,10 @@ def handle_chat_input(author, date, region, filename, num_documents):
     if "upload_success" in st.session_state:
         st.success(st.session_state.upload_success)
         del st.session_state.upload_success
+    
+    if "upload_fail" in st.session_state:
+        st.error(st.session_state.upload_fail)
+        del st.session_state.upload_fail
     
     selected_query = st.session_state["query_select"]
     if selected_query == "Select a query...":

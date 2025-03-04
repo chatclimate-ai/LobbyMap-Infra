@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union 
 import requests
 import json
 
@@ -59,7 +59,8 @@ def upload_call(
         author: str,
         date: Optional[str] = "",
         region: Optional[str] = "",
-        size: Optional[int] = 0.0
+        size: Optional[int] = 0.0,
+        language: Optional[str] = "latin-based"
         ) -> Dict:
     
     params = {
@@ -67,7 +68,8 @@ def upload_call(
         "author": author,
         "date": date,
         "region": region,
-        "size": size
+        "size": size,
+        "language": language
     }
 
     try:
@@ -78,7 +80,7 @@ def upload_call(
         return response_data
     
     except:
-        return {"num_chunks": 0}
+        raise Exception("Failed to upload file.")
 
 
 def generator_call(
@@ -113,7 +115,7 @@ def retriever_call(
         date: Optional[str] = "",
         region: Optional[str] = "",
         file_name: Optional[str] = "",
-        top_k: Optional[int] = 5
+        top_k: Optional[Union[float, int]] = 5
         ) -> Dict:
     
     params = {

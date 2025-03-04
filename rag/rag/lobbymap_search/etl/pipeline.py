@@ -215,13 +215,13 @@ class PdfDocumentPipeline:
             if failed_objs:
                 for failed_obj in failed_objs:
                     logger.error(f"Failed to load object into the Vector DB: {failed_obj}\n")
+                    raise Exception("Failed to load objects into the Vector DB.")
             else:
                 logger.info("All objects were successfully added.")
 
-                
-
         except Exception as e:
             logger.error(f"Failed to load chunked pdf doc into the Vector DB: {e}")
+            raise e
 
 
     def run(self, pdf_files: List[DocumentInput]):
