@@ -3,7 +3,7 @@ import requests
 import datetime
 import yaml
 import os
-from utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt
+from utils import retriever_call, generator_call, upload_call, list_collection, get_collections, save_collection, add_to_collection, check_file_in_map, list_prompts, delete_prompt, delete_call
 
 
 config_path = "/app/config.yaml"
@@ -507,6 +507,17 @@ def render_sidebar():
                     if st.button("Back", key="back_button"):
                         st.session_state.selected_file = None  # Reset selection
                         st.rerun()
+                    
+                    if st.button("Delete", key="delete_file"):
+                        try:
+                            delete_call(selected_file["file_name"])
+                            st.success(f"File '{selected_file['file_name']}' deleted successfully.")
+                            st.session_state.selected_file = None
+                            st.rerun()
+                        
+                        except Exception as e:
+                            st.error(f"An error occurred while deleting the file. {str(e)}")
+                            st.rerun()
                     
 
                 

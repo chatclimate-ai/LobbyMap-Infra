@@ -83,6 +83,23 @@ def upload_call(
         raise Exception("Failed to upload file.")
 
 
+def delete_call(
+        file_name: str
+        ) -> Dict:
+    params = {
+        "file_name": file_name
+    }
+
+    try:
+        response = requests.get("http://rag_api:8001/collections/delete/file", params=params)
+        response.raise_for_status()
+
+        response_data = response.json()
+        return response_data
+    
+    except:
+        raise Exception("Failed to delete file.")
+
 def generator_call(
         query: str, 
         evidence: str,
