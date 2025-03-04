@@ -1,50 +1,47 @@
 [
     {
         "query": "Q1: Climate Science Transparency",
-        "prompt": "Transparency around climate change science"
+        "prompt": "Is the organization transparent and clear about its position on climate change science?"
     },
     {
         "query": "Q2: Climate Science Stance",
-        "prompt": "Position on the needed response to climate change science"
+        "prompt": "Is the organization supporting the science-based response to climate change as set out by the IPCC?"
     },
     {
         "query": "Q3: Need for Climate Regulation",
-        "prompt": "Support for regulations to tackle climate change in general"
+        "prompt": "Does the organization engage in advocacy or lobbying efforts aimed at improving climate regulatory processes?"
     },
     {
         "query": "Q4: The Paris Agreement",
-        "prompt": "Support for the UN Treaty on Climate Change"
+        "prompt": "Is the organization supporting an IPCC-aligned transition of the economy away from carbon-emitting technologies, including supporting relevant policy and legislative measures to enable this transition?"
     },
     {
         "query": "Q5: Transparency on Legislation",
-        "prompt": "Transparency on positions on climate policy/legislations"
+        "prompt": "To what extent does the organization express the need for regulatory intervention to resolve the climate crisis?"
     },
     {
         "query": "Q6: Carbon Tax",
-        "prompt": "Support for policies/regulation on carbon tax"
+        "prompt": "Does the organization engage in lobbying to support policies aimed at protecting ecosystems and land that serve as carbon sinks?"
     },
     {
-        "query": "Q7: Emissions Trading",
-        "prompt": "Support for policies/regulation on emissions trading"
+        "query": "Q7: Energy Efficiency Standards",
+        "prompt": "Does the organization engage in lobbying to promote energy efficiency policies, including the adoption of relevant standards and targets?"
     },
     {
-        "query": "Q8: Energy Efficiency Standards",
-        "prompt": "Support for policies/regulation on energy efficiency standards"
+        "query": "Q8: Renewable Energy Legislation",
+        "prompt": "Does the organization lobby for renewable energy legislation, including measures like targets, subsidies, and other supportive policies?"
     },
     {
-        "query": "Q9: Renewable Energy Legislation",
-        "prompt": "Support for policies/regulation on renewable energy legislation"
+        "query": "Q9: Energy Policy and Mix",
+        "prompt": "Does the organization lobby within the UN Framework Convention on Climate Change (UNFCCC) process, and what lobbying efforts are documented?"
     },
     {
-        "query": "Q10: Energy Policy and Mix",
-        "prompt": "Support for policies/regulation on energy policy and mix"
+        "query": "Q10: GHG Emissions Standards",
+        "prompt": "Does the organization actively lobby for policies that set greenhouse gas emission standards and targets, and what evidence of such lobbying is disclosed?"
     },
     {
-        "query": "Q11: GHG Emissions Standards",
-        "prompt": "Support for policies/regulation on GHG emissions standards"
-    },
-    {
-        "query": "Q12: Relationships",
-        "prompt": "Transparency on industry and policy engagement group relationships"
+        "query": "Q11: Relationships",
+        "prompt": "Does the organization reveal its involvement with industry associations that lobby on climate policy, including details on alignment with these groups?"
     }
 ]
+
