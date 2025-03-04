@@ -1,13 +1,14 @@
 # Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.6.1).
-FROM nvidia/cuda:12.6.1-runtime-ubuntu24.04
+FROM nvidia/cuda:12.6.1-devel-ubuntu24.04
 
-# Install system dependencies needed for Python, building.
+# Install essential system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-venv \
     python3-dev \
     python3-pip \
     build-essential \
+    ninja-build \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,11 +28,11 @@ COPY requirements.txt /app/
 # Install dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install PyTorch/TorchVision with CUDA 12.1 support
+# Install PyTorch/TorchVision with CUDA 12.6 support
 RUN pip install --no-cache-dir \
     torch \
     torchvision \
-    --index-url https://download.pytorch.org/whl/cu121
+    --index-url https://download.pytorch.org/whl/cu126
 
 # Copy the rest of your application code
 COPY . /app
@@ -43,4 +44,4 @@ WORKDIR /app/rag
 EXPOSE 8001
 
 # Launch gunicorn with uvicorn workers
-CMD ["gunicorn", "backend.server:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001", "--timeout", "300"]
+CMD ["gunicorn", "backend.server:app", "-w", "3", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001", "--timeout", "300"]
