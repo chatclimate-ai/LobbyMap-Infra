@@ -36,8 +36,7 @@ parser_options:
 
 #### Chunking options ####
 LayoutChunking_options:
-  token_limit: 8000
-  tokenizer_model: "bert-base-uncased"
+  min_words: 30
   
 
 Chunker:
