@@ -1,5 +1,5 @@
 # Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.6.1).
-FROM nvidia/cuda:12.6.1-devel-ubuntu24.04
+FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
 
 # Install essential system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -27,13 +27,6 @@ COPY requirements.txt /app/
 
 # Install dependencies from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install PyTorch/TorchVision with CUDA 12.6 support
-RUN pip install --no-cache-dir \
-    torch \
-    torchvision \
-    torchaudio \
-    --index-url https://download.pytorch.org/whl/cu126
 
 # Copy the rest of your application code
 COPY . /app
