@@ -5,12 +5,11 @@ import weaviate.classes as wvc
 from weaviate.classes.aggregate import GroupByAggregate
 from weaviate.classes.query import MetadataQuery
 from contextlib import asynccontextmanager
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
 from collections import Counter
 from backend.utils import rank, generate
 from lobbymap_search.etl.schemas import DocumentInput, InputMetadata
 import yaml
-import os
 
 description = """
 LobbyMap Search API
@@ -477,7 +476,7 @@ async def run_filter_query(
     date: Optional[str] = "", 
     region: Optional[str] = "",
     file_name: Optional[str] = "",
-    top_k: Optional[int] = 5
+    top_k: Optional[Union[float, int]] = 5
     ):
     """
     Run a filtered query on the collection.
@@ -517,14 +516,26 @@ async def run_filter_query(
 
         # Query the Vector DB with the constructed filters
         pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
-        response = pdf_docs.query.near_text(
-            query=query,
-            limit=top_k,
-            filters=filter_expr,
-            return_metadata=MetadataQuery(
-                certainty=True,
-                )
-        )
+        if int(top_k) != top_k:
+            response = pdf_docs.query.near_text(
+                query=query,
+                certainty=top_k,
+                filters=filter_expr,
+                target_vector="content_vector",
+                return_metadata=MetadataQuery(
+                    certainty=True,
+                    )
+            )
+        else:
+            response = pdf_docs.query.near_text(
+                query=query,
+                limit=int(top_k),
+                filters=filter_expr,
+                target_vector="content_vector",
+                return_metadata=MetadataQuery(
+                    certainty=True,
+                    )
+            )
 
         confidence_scores: List[float] = []
         evidences: List[Dict] = []
