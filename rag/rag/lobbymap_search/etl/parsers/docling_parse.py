@@ -1,9 +1,6 @@
 from docling.datamodel.pipeline_options import (
     PdfPipelineOptions,
     EasyOcrOptions,
-    TesseractOcrOptions,
-    OcrMacOptions,
-    RapidOcrOptions,
     AcceleratorOptions,
     TableStructureOptions,
     AcceleratorDevice
@@ -157,15 +154,6 @@ class DoclingPDFParser:
         
         if ocr["engine"] == "easyocr":
             pipeline_options.ocr_options = EasyOcrOptions(**ocr["easyocr_settings"], lang=self.map_language(ocr_language))
-
-        elif ocr["engine"] == "tesseract":
-            pipeline_options.ocr_options = TesseractOcrOptions(**["tesseract_settings"])
-        
-        elif ocr["engine"] == "ocrmac":
-            pipeline_options.ocr_options = OcrMacOptions(**ocr["ocrmac_settings"])
-        
-        elif ocr["engine"] == "rapidocr":
-            pipeline_options.ocr_options = RapidOcrOptions(**ocr["rapidocr_settings"])
         else:
             raise NotImplementedError(f"Invalid OCR options specified: {ocr['engine']}")
 
