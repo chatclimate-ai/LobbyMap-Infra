@@ -19,4 +19,4 @@ WORKDIR /app/frontend
 EXPOSE 8501
 
 # 6. Define the command to run the Streamlit app
-CMD ["streamlit", "run", "ui.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "ui.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.maxUploadSize=20"]
