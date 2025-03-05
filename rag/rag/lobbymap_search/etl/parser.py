@@ -40,7 +40,7 @@ class PDFParser:
         """
         """
         # Parse the PDF file and extract text content
-        content = self.parse(input_data.file_path, input_data.metadata.language)
+        content = self.parse(input_data)
 
         # Extract file_name from the file_path
         file_name = os.path.basename(input_data.file_path)
@@ -66,12 +66,37 @@ class PDFParser:
 
         return document
 
-    def parse(self, file_path: str, language) -> str:
+    def parse(self, input_data: DocumentInput) -> str:
         """
         Parses the PDF file and returns the conversion results as markdown text.
         :param file_path: Path to the PDF file.
         :return: Markdown representation of the parsed content.
         """
+        file_path = input_data.file_path
+        language = input_data.metadata
+
+        size = input_data.metadata.size
+
+        if size > 5.0:
+            large_file_options = self.parser_options
+            large_file_options["ocr"]["easyocr_settings"]["force_full_page_ocr"] = False
+
+            large_file_options["table"]["table_structure_options"]["tableformer_mode"] = "fast"
+
+            large_file_options["backend"] = "pypdfium"
+
+            try:
+                output: List[ParserOutput] = self.parser.parse_and_export(
+                    file_path, 
+                    modalities=["text"], 
+                    **large_file_options,
+                    ocr_language=language
+                    )
+                return self.escape_markdown(output[0].text)
+            except Exception as e:
+                return f"Error parsing PDF file: {e}"
+
+
         try:
             output: List[ParserOutput] = self.parser.parse_and_export(file_path, modalities=["text"], **self.parser_options, ocr_language=language)
             return self.escape_markdown(output[0].text)
