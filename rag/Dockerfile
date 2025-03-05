@@ -1,18 +1,21 @@
-# Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.6.1).
-FROM nvidia/cuda:12.6.1-devel-ubuntu24.04
+# Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.4.1).
+FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+
 
 # Install essential system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 python3.12-dev python3.12-venv \
+    python3 python3-dev python3-venv \
     build-essential ninja-build zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Create and activate a virtual environment in /opt/venv
-RUN python3.12 -m venv /opt/venv
+RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip inside the virtual environment
 RUN /opt/venv/bin/pip install --upgrade pip
+
+ENV TORCH_CUDA_ARCH_LIST="7.5"
 
 # Set the working directory
 WORKDIR /app
@@ -22,10 +25,6 @@ COPY requirements.txt /app/
 
 # Install dependencies from requirements.txt inside the virtual environment
 RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
-
-# Install PyTorch/TorchVision with CUDA 12.6 support
-RUN /opt/venv/bin/pip install --no-cache-dir \
-    torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu126
 
 # Copy the rest of your application code
 COPY . /app
