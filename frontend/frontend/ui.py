@@ -319,14 +319,31 @@ def show_file_info(
         size: float = 0.0,
         url: str = "",
         num_chunks: int = 0,
+        uploaded_time: str = "",
+        language: str = "Unknown"
     ):
     """
     Display file information in a container.
     """
+    if not author:
+        author = "Unknown"
+    if not date:
+        date = "Unknown"
+    if not region:
+        region = "Unknown"
+    if not size:
+        size = 0.0
+    if " " in url:
+        url = f"<{url}>"
+    if not uploaded_time:
+        uploaded_time = "Unknown"
+    if not language:
+        language = "Unknown"
+
     with st.container():
         st.markdown(
             f"""
-            # {file_name}
+            ## {file_name}
 
             Size: {size} MB
 
@@ -334,13 +351,17 @@ def show_file_info(
 
             [View File]({url})
 
-            ## Metadata
+            #### Metadata
 
             **Author:** {author}
 
             **Date:** {date}
 
             **Region:** {region}
+
+            **Language:** {language}
+
+            **Uploaded Time:** {uploaded_time}
 
             """, unsafe_allow_html=True)
 
@@ -501,24 +522,29 @@ def render_sidebar():
                         size = selected_file["size"],
                         url = selected_file["url"],
                         num_chunks = selected_file["num_chunks"],
+                        uploaded_time = selected_file["upload_time"],
+                        language = selected_file["language"]
                     )
                
-                    # Back button to return to search view
-                    if st.button("Back", key="back_button"):
-                        st.session_state.selected_file = None  # Reset selection
-                        st.rerun()
+                    col1, col2 = st.columns([1, 1], gap="large", vertical_alignment="top")
+
+                    with col1:
+                        if st.button("Delete", key="delete_file"):
+                            try:
+                                delete_call(selected_file["file_name"])
+                                st.success(f"File '{selected_file['file_name']}' deleted successfully.")
+                                st.session_state.selected_file = None
+                                st.rerun()
+                            
+                            except Exception as e:
+                                st.error(f"An error occurred while deleting the file. {str(e)}")
+                                st.rerun()
                     
-                    if st.button("Delete", key="delete_file"):
-                        try:
-                            delete_call(selected_file["file_name"])
-                            st.success(f"File '{selected_file['file_name']}' deleted successfully.")
-                            st.session_state.selected_file = None
+                    with col2:
+                        # Back button to return to search view
+                        if st.button("Back", key="back_button"):
+                            st.session_state.selected_file = None  # Reset selection
                             st.rerun()
-                        
-                        except Exception as e:
-                            st.error(f"An error occurred while deleting the file. {str(e)}")
-                            st.rerun()
-                    
 
                 
                 else:
@@ -559,6 +585,8 @@ def upload_dialog():
     default_option = "latin-based"
     language = st.selectbox("Choose a language type:", options, index=options.index(default_option))
 
+    upload_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     col1, col2 = st.columns([1, 1], gap="small", vertical_alignment="top")
 
     with col1:
@@ -592,7 +620,8 @@ def upload_dialog():
                             date=Date,
                             region=Region,
                             size=size,
-                            language=language
+                            language=language,
+                            upload_time=upload_time
                         )["num_chunks"]
 
                         # Re-write the Data Map
@@ -604,7 +633,8 @@ def upload_dialog():
                                 "size": size,
                                 "url": url,
                                 "language": language,
-                                "num_chunks": num_chunks
+                                "num_chunks": num_chunks,
+                                "upload_time": upload_time
                             }
                         
                         add_to_collection(DATA_MAP, new_file)

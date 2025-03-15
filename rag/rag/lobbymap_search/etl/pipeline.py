@@ -1,12 +1,8 @@
-from .schemas import PdfDocument, MarkdownDocument, DocumentInput
-from .parser import PDFParser
-from .chunker import TextChunker
-from typing import List, Dict, Literal
+from .schemas import Chunk
+from typing import List, Dict
 import weaviate
 from weaviate.classes.config import Configure, Property, DataType
 from dotenv import load_dotenv
-import os
-import re
 import logging
 import warnings
 import gc
@@ -23,36 +19,21 @@ class PdfDocumentPipeline:
     """
     An ETL pipeline to extract, process and load the parsed pdf documents into the vector DB.
     """
-    parsed_pdfs: List[PdfDocument] = None
-    parsed_pdf_dicts: List[Dict] = None
-    pdf_serializer: PDFParser
-    chunker: TextChunker
+    chunks: List[Chunk] = None
+    chunk_dicts: List[Dict] = None
 
     def __init__(
             self,
             collection_name: str = "PdfDocument",
-            parser: Literal["docling", "pymupdf"] = "docling",
-            parser_options: Dict = {},
-            save_locally: bool = False, 
-            save_dir: str = "output",
-            chunking_method: Literal["layout", "semantic"] = "layout",
-            chunking_options: Dict = {},
             vectorizer: str = "bge-m3",
             close_client: bool = False
             ):
         """
         Initialize the pipeline by connecting to the Vector DB and creating the PubmedArticle collection.
         """
-        self.pdf_serializer = PDFParser(
-            parser, 
-            parser_options=parser_options,
-            save_locally=save_locally,
-            save_dir=save_dir
-            )
-        self.chunker = TextChunker(chunking_method, chunking_options)
         self.collection_name = collection_name
         self.vectorizer = vectorizer
-        self.pdfdocument_client = None
+        self.client = None
         self.close_client = close_client
         
 
@@ -60,10 +41,10 @@ class PdfDocumentPipeline:
         """
         Connect to Weaviate and initialize the PdfDocument collection if it doesn't exist.
         """
-        if self.pdfdocument_client is None:
+        if self.client is None:
             logger.info("Connecting to Weaviate...")
             try:
-                self.pdfdocument_client = weaviate.connect_to_custom(
+                self.client = weaviate.connect_to_custom(
                     http_host="weaviate",
                     http_port=8080,
                     http_secure=False,
@@ -72,9 +53,9 @@ class PdfDocumentPipeline:
                     grpc_secure=False,
                 )
 
-                if not self.pdfdocument_client.collections.exists(self.collection_name):
-                    logger.info("Creating PdfDocument collection...")
-                    self.pdfdocument_client.collections.create(
+                if not self.client.collections.exists(self.collection_name):
+                    logger.info(f"Creating {self.collection_name} collection...")
+                    self.client.collections.create(
                         name=self.collection_name,
                         vectorizer_config= [
                             Configure.NamedVectors.text2vec_ollama(
@@ -92,126 +73,59 @@ class PdfDocumentPipeline:
                             Property(name="region", data_type=DataType.TEXT),
                             Property(name="size", data_type=DataType.NUMBER),
                             Property(name= "language", data_type=DataType.TEXT),
+                            Property(name="upload_time", data_type=DataType.TEXT),
                             Property(name="content", data_type=DataType.TEXT),
                         ]
                     )
                 
                 else:
-                    logger.info("PdfDocument collection already exists.")
+                    logger.info(f"{self.collection_name} collection already exists.")
 
             except Exception as e:
-                if self.pdfdocument_client is not None:
-                    self.pdfdocument_client.close()
+                if self.client is not None:
+                    self.client.close()
                 raise e
 
     def close(self):
-        if self.pdfdocument_client is not None:
-            self.pdfdocument_client.close()
-            self.pdfdocument_client = None
+        if self.client is not None:
+            self.client.close()
+            self.client = None
 
 
-    def _extract(self, pdf_files: List[DocumentInput]):
+
+    @staticmethod
+    def _transform(chunks: List[Chunk]) -> List[Dict]:
         """
-        Extract the parsed pdf document content and metadata.
+        Transform the list of Chunk objects into a list of dictionaries.
         """
-        self.parsed_pdfs = []
+        if not chunks:
+            raise ValueError("Empty list of chunks. Please provide a list of chunks to transform.")
         
-
-        for file in pdf_files:
-            if not os.path.isfile(file.file_path):
-                raise ValueError(f"File not found: {file.file_path}")
-            
-            if file.file_path.lower().endswith(".pdf"):
-                doc = self.pdf_serializer.parse_file(file)
-            
-            elif file.file_path.lower().endswith(".md"):
-                with open(file.file_path, "r") as f:
-                    content = f.read()
-                
-                doc = MarkdownDocument(
-                    file_name = os.path.basename(file.file_path),
-                    content=content,
-                    **file.metadata.model_dump()
-                )
-            
-            else:
-                raise ValueError(f"Unsupported file format: {file.file_path}")
-            
-
-            # Post-processing
-            # remove glyph placeholders
-            regex_pattern = r"GLYPH<[^>]+>"
-            doc.content = re.sub(regex_pattern, "", doc.content).strip()
-
-            # remove image placeholders
-            regex_pattern = r"<!-- image -->"
-            doc.content = re.sub(regex_pattern, "", doc.content).strip()
-
-            regex_pattern = r"\\{1,2}_"
-            doc.content = re.sub(regex_pattern, ".", doc.content).strip()
-
-            if not doc.content:
-                doc.content = "File is empty after Parsing"
-
-            # Chunk the parsed content
-            for chunk in self.chunker.chunk(doc.content):
-                if doc.file_name.endswith(".pdf"):
-                    self.parsed_pdfs += [
-                        PdfDocument(
-                            file_name=doc.file_name,
-                            author=doc.author,
-                            date=doc.date,
-                            region=doc.region,
-                            size=doc.size,
-                            language=doc.language,
-                            content=chunk
-                        )
-                    ]
-                else:
-                    self.parsed_pdfs += [
-                        MarkdownDocument(
-                            file_name=doc.file_name,
-                            author=doc.author,
-                            date=doc.date,
-                            region=doc.region,
-                            size=doc.size,
-                            language=doc.language,
-                            content=chunk
-                        )
-                    ]
-
-
-
-
-    def _transform(self):
-        """
-        Transform the parsed pdf documents into dicts:
-        """
-        if self.parsed_pdfs is None:
-            raise ValueError("No chunks created. Please run the extract method first.")
-        
-        self.parsed_pdf_dicts = []
-        for pdf_doc in self.parsed_pdfs:
-            self.parsed_pdf_dicts += [
-                pdf_doc.model_dump()
+        chunk_dicts = []
+        for chunk in chunks:
+            chunk_dicts += [
+                chunk.model_dump()
             ]
+        
+        return chunk_dicts
 
 
-    def _load_into_vdb(self):
+    def _load_into_vdb(self, chunk_dicts: List[Dict]):
         """
-        Loading the PdfDocument objects into the Vector DB
+        Loading the
         """
-        if self.parsed_pdf_dicts is None:
+        if not chunk_dicts:
             raise ValueError("No chunk dicts created. Please run the transform method first.")
 
         self.connect_to_weaviate()
 
         # loading into the Vector DB
         try:
-            collection = self.pdfdocument_client.collections.get(self.collection_name)
+            collection = self.client.collections.get(self.collection_name)
+
             with collection.batch.fixed_size(batch_size=5) as batch:
-                for pdf_doc in self.parsed_pdf_dicts:
-                    batch.add_object(properties=pdf_doc)
+                for chunk_dict in chunk_dicts:
+                    batch.add_object(properties=chunk_dict)
             
             failed_objs = collection.batch.failed_objects
             if failed_objs:
@@ -227,16 +141,13 @@ class PdfDocumentPipeline:
             raise e
             
         
-    def run(self, pdf_files: List[DocumentInput]):
+    def run(self, chunks: List[Chunk]):
         """
         Run the ETL pipeline to extract, transform and load the parsed pdf documents into the Vector DB.
         """
         try:
-            self._extract(pdf_files=pdf_files)
-            self._transform()
-            self._load_into_vdb()
-
-            return self.parsed_pdf_dicts
+            chunk_dicts = self._transform(chunks=chunks)
+            self._load_into_vdb(chunk_dicts=chunk_dicts)
         
         except Exception as e:
             logger.error(f"An error occurred during the pipeline execution: {e}")

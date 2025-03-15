@@ -11,6 +11,7 @@ services:
       - feedback_api
       - rag_api
       - pdf_server
+      - docling_api
     ports:
       - "8501:8501"
     
@@ -51,6 +52,28 @@ services:
       MONGODB_URI: mongodb://lobbymap:lobbymap_pass@mongodb/feedback_db?retryWrites=true&w=majority
     networks:
       - app_network
+
+  # ---------------------
+  # Docling FastAPI service
+  # ---------------------
+  docling_api:
+    build: docling-parser/.
+    image: lobbymap-docling-api:latest
+    volumes:
+      - ./data/documents:/app/data/documents
+    ports:
+      - "5000:5000"
+    restart: on-failure:0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ "gpu" ]
+    networks:
+      - app_network
+
 
   # ---------------------
   # MongoDB service

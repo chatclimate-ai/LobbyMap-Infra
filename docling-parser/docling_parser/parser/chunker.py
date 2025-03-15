@@ -1,5 +1,5 @@
 import re
-from typing import List, Literal
+from typing import List
 
 
 
@@ -174,39 +174,3 @@ class LayoutChunking:
             else:
                 merged.append(p)
         return merged
-
-
-
-
-
-
-
-class TextChunker:
-    def __init__(
-            self, 
-            method: Literal["layout", "semantic"] = "layout",
-            chunking_options: dict = {}
-            ):
-        """
-        Initialize the chunker with the specified method.
-        :param method: The chunking method to use ("layout" or "semantic").
-        """
-        if method.lower() == "layout":
-            self.chunker = LayoutChunking(**chunking_options)
-        else:
-            raise ValueError(f"Invalid chunking method: {method}")
-
-
-    def chunk(self, text: str) -> List[str]:
-        """
-        Chunk the input text using the specified method.
-        :param text: The input text as a single string.
-        :param kwargs: Additional keyword arguments for the chunking method.
-        :return: A list of chunks, each as a string.
-        """
-        return self.chunker.chunk(text)
-
-
-
-
-

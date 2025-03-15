@@ -1,6 +1,7 @@
 from typing import Optional, Dict, List, Union 
 import requests
 import json
+import os
 
 
     
@@ -60,19 +61,34 @@ def upload_call(
         date: Optional[str] = "",
         region: Optional[str] = "",
         size: Optional[int] = 0.0,
-        language: Optional[str] = "latin-based"
+        language: Optional[str] = "latin-based",
+        upload_time: Optional[str] = ""
         ) -> Dict:
     
-    params = {
-        "file_path": file_path,
-        "author": author,
-        "date": date,
-        "region": region,
-        "size": size,
-        "language": language
-    }
 
     try:
+        params = {
+            "file_path": file_path,
+            "size": size,
+            "language": language
+        }
+        chunks: List[str] = requests.get("http://docling_parser:5000/parse", params=params)["chunks"]
+    
+    except:
+        raise Exception("Failed to parse file.")
+
+    try:
+        file_name = os.path.basename(file_path)
+        params = {
+            "file_name": file_name,
+            "chunks": chunks,
+            "author": author,
+            "date": date,
+            "region": region,
+            "size": size,
+            "language": language,
+            "upload_time": upload_time
+        }
         response = requests.get("http://rag_api:8001/collections/insert", params=params)
         response.raise_for_status()
 

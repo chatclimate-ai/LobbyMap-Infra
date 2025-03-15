@@ -3,7 +3,6 @@ from backend.templates import read_prompt_template, read_tool
 from tenacity import retry, wait_fixed, stop_after_attempt
 from ollama import Client
 import jinja2
-from sentence_transformers import CrossEncoder
 from FlagEmbedding import FlagReranker
 
 
@@ -21,14 +20,16 @@ def rank(
     :return: A list of ranked evidences
     """
     evidence_contents = [chunk.get("content") for chunk in evidences]
-
-    if model_name.startswith("BAAI"):
-        rank_scores = bge_rerank(model_name, query, evidence_contents)
-    
-    else:
-        rank_scores = cross_encoder_rerank(model_name, query, evidence_contents)
-    
+    rank_scores = bge_rerank(model_name, query, evidence_contents)
     return rank_scores
+
+    # if model_name.startswith("BAAI"):
+    #     rank_scores = bge_rerank(model_name, query, evidence_contents)
+    
+    # else:
+    #     rank_scores = cross_encoder_rerank(model_name, query, evidence_contents)
+    
+    # return rank_scores
 
 
 
@@ -50,20 +51,20 @@ def bge_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List
     return model.compute_score(sentence_pairs, normalize=True)
 
 
-def cross_encoder_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List:
-    """"
-    Rerank the documents using the Jina Reranker.
-    :param query: The query to rerank the documents against.
-    :param documents: A list of documents to rerank.
-    """
-    model = CrossEncoder(
-        model_name,
-        automodel_args={"torch_dtype": "auto"},
-        trust_remote_code=True,
-    )
+# def cross_encoder_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List:
+#     """"
+#     Rerank the documents using the Jina Reranker.
+#     :param query: The query to rerank the documents against.
+#     :param documents: A list of documents to rerank.
+#     """
+#     model = CrossEncoder(
+#         model_name,
+#         automodel_args={"torch_dtype": "auto"},
+#         trust_remote_code=True,
+#     )
    
-    sentence_pairs = [[query, evidence] for evidence in evidence_contents]
-    return model.predict(sentence_pairs, convert_to_tensor=True).tolist()
+#     sentence_pairs = [[query, evidence] for evidence in evidence_contents]
+#     return model.predict(sentence_pairs, convert_to_tensor=True).tolist()
 
 
 
