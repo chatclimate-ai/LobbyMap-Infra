@@ -1,9 +1,13 @@
 from typing import Literal, List
 from .schemas import PdfDocument, DocumentInput
-from .parsers.docling_parse import DoclingPDFParser
-from .parsers.pymupdf_parse import PyMuPDFParser
+from .parsers.docling_parse import DoclingPDFParser, DoclingParserLarge
 from .parsers.schemas import ParserOutput
+import logging
 import os
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class PDFParser:
     """
@@ -22,8 +26,7 @@ class PDFParser:
         """
         if parser == "docling":
             self.parser = DoclingPDFParser()
-        elif parser == "pymupdf":
-            self.parser = PyMuPDFParser()
+            self.parser_large= DoclingParserLarge()
         else:
             raise ValueError(f"Invalid parser specified: {parser}")
 
@@ -77,19 +80,14 @@ class PDFParser:
 
         size = input_data.metadata.size
 
-        if size > 5.0:
-            large_file_options = self.parser_options
-            large_file_options["ocr"]["easyocr_settings"]["force_full_page_ocr"] = False
-
-            large_file_options["table"]["table_structure_options"]["tableformer_mode"] = "fast"
-
-            large_file_options["backend"] = "pypdfium"
+        if size > 2.0:
+            logger.info(f"Parsing a large file of size {size}.")
 
             try:
-                output: List[ParserOutput] = self.parser.parse_and_export(
+                output: List[ParserOutput] = self.parser_large.parse_and_export(
                     file_path, 
                     modalities=["text"], 
-                    **large_file_options,
+                    **self.parser_options,
                     ocr_language=language
                     )
                 return self.escape_markdown(output[0].text)
@@ -98,8 +96,14 @@ class PDFParser:
 
 
         try:
-            output: List[ParserOutput] = self.parser.parse_and_export(file_path, modalities=["text"], **self.parser_options, ocr_language=language)
+            output: List[ParserOutput] = self.parser.parse_and_export(
+                file_path, 
+                modalities=["text"], 
+                **self.parser_options, 
+                ocr_language=language
+                )
             return self.escape_markdown(output[0].text)
+        
         except Exception as e:
             return f"Error parsing PDF file: {e}"
 
