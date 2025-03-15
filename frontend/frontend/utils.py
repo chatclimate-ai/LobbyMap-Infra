@@ -79,8 +79,8 @@ def upload_call(
         response_data = response.json()
         return response_data
     
-    except:
-        raise Exception("Failed to upload file.")
+    except Exception as e:
+        raise Exception(f"Failed to upload file. {e}")
 
 
 def delete_call(
