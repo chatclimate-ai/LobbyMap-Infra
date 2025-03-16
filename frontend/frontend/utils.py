@@ -2,8 +2,6 @@ from typing import Optional, Dict, List, Union
 import requests
 import json
 import os
-
-
     
 def check_file_in_map(file_name: str, DATA_MAP: str) -> bool:
     existing_files = list_collection(DATA_MAP)
@@ -62,7 +60,7 @@ def upload_call(
         region: Optional[str] = "",
         size: Optional[int] = 0.0,
         language: Optional[str] = "latin-based",
-        upload_time: Optional[str] = ""
+        # upload_time: Optional[str] = ""
         ) -> Dict:
     
 
@@ -72,24 +70,27 @@ def upload_call(
             "size": size,
             "language": language
         }
-        chunks: List[str] = requests.get("http://docling_parser:5000/parse", params=params)["chunks"]
-    
-    except:
-        raise Exception("Failed to parse file.")
+        response = requests.get("http://docling_api:5000/parse", params=params)
+        response.raise_for_status()
+        chunks = response.json()["chunks"]
+        
+
+    except Exception as e:
+        raise Exception(f"Failed to parse file. {str(e)}")
 
     try:
         file_name = os.path.basename(file_path)
-        params = {
+        payload = {
             "file_name": file_name,
             "chunks": chunks,
             "author": author,
             "date": date,
             "region": region,
             "size": size,
-            "language": language,
-            "upload_time": upload_time
+            "language": language
+            # "upload_time": upload_time
         }
-        response = requests.get("http://rag_api:8001/collections/insert", params=params)
+        response = requests.post("http://rag_api:8001/collections/insert", json=payload)
         response.raise_for_status()
 
         response_data = response.json()
