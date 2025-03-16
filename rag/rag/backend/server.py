@@ -1,13 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from rag.lobbymap_search.etl.pipeline import PdfDocumentPipeline
+from lobbymap_search.etl.pipeline import PdfDocumentPipeline
 import weaviate.classes as wvc
 from weaviate.classes.aggregate import GroupByAggregate
 from weaviate.classes.query import MetadataQuery
 from contextlib import asynccontextmanager
 from typing import Dict, Optional, List, Union
-from rag.backend.utils import rank, generate
-from rag.lobbymap_search.etl.schemas import Chunk
+from backend.utils import rank, generate
+from lobbymap_search.etl.schemas import Chunk
+from pydantic import BaseModel
 import yaml
 
 description = """
@@ -48,12 +49,6 @@ CHUNKING_OPTIONS = config[config["Chunker"]["chunking_options"]]
 
 pipeline = PdfDocumentPipeline(
     collection_name=COLLECTION_NAME,
-    parser=PARSER,
-    parser_options=PARSER_OPTIONS,
-    save_locally=SAVE_PARSED_CONTENT,
-    save_dir=MD_OUTPUT_DIR,
-    chunking_method=CHUNKING_METHOD,
-    chunking_options=CHUNKING_OPTIONS,
     vectorizer=VECTORIZER
 )
 
@@ -305,7 +300,7 @@ async def read_files_from_collection() -> Dict:
             file_properties = collection.query.fetch_objects(
                 filters=filter_criteria, 
                 limit=1,
-                return_properties=["author", "date", "region", "size", "language", "upload_time"]
+                return_properties=["author", "date", "region", "size", "language"] #, "upload_time"]
                 ).objects[0].properties
 
             file["date"] = file_properties["date"]
@@ -313,7 +308,7 @@ async def read_files_from_collection() -> Dict:
             file["region"] = file_properties["region"]
             file["size"] = file_properties["size"]
             file["language"] = file_properties["language"]
-            file["upload_time"] = file_properties["upload_time"]
+            # file["upload_time"] = file_properties["upload_time"]
             file["url"] = FILE_SYSTEM_SERVER + "/" +  file["file_name"]
         
         return {"files": result}
@@ -349,33 +344,35 @@ async def read_all_collection() -> Dict:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class InsertPayload(BaseModel):
+    file_name: str
+    chunks: List[str]
+    author: str
+    date: Optional[str] = ""
+    region: Optional[str] = ""
+    size: Optional[float] = 0.0
+    language: Optional[str] = "latin-based"
+    # upload_time: Optional[str] = ""
+
 
 
 @app.post("/collections/insert")
 async def insert(
-        file_name: str,
-        chunks: List[str],
-        author: str,
-        date: Optional[str] = "",
-        region: Optional[str] = "",
-        size: Optional[float] = 0.0,
-        language: Optional[str] = "latin-based",
-        upload_time: Optional[str] = ""
+        payload: InsertPayload
         ) -> Dict:
     
 
     chunks = [
         Chunk(
-            file_name=file_name,
+            file_name=payload.file_name,
             content=content,
-            author=author,
-            date=date,
-            region=region,
-            size=size,
-            language=language,
-            upload_time=upload_time
+            author=payload.author,
+            date=payload.date,
+            region=payload.region,
+            size=payload.size,
+            language=payload.language
         )
-        for content in chunks
+        for content in payload.chunks
     ]
 
     try:
