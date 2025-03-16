@@ -2,15 +2,12 @@ from .schemas import Chunk
 from typing import List, Dict
 import weaviate
 from weaviate.classes.config import Configure, Property, DataType
-from dotenv import load_dotenv
 import logging
 import warnings
 import gc
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-
-load_dotenv()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -73,7 +70,7 @@ class PdfDocumentPipeline:
                             Property(name="region", data_type=DataType.TEXT),
                             Property(name="size", data_type=DataType.NUMBER),
                             Property(name= "language", data_type=DataType.TEXT),
-                            Property(name="upload_time", data_type=DataType.TEXT),
+                            # Property(name="upload_time", data_type=DataType.TEXT),
                             Property(name="content", data_type=DataType.TEXT),
                         ]
                     )

@@ -12,7 +12,7 @@ class Chunk(BaseModel):
     region: Optional[str] = ""
     size: Optional[float] = 0.0
     language: Optional[Literal["latin-based", "arabic-based", "bengali-based", "cyrillic-based", "devanagari-based", "chinese-traditional", "chinese-simplified", "japanese", "korean", "telugu", "kannada", "thai"]] = "latin-based"
-    upload_time: Optional[str] = ""
+    # upload_time: Optional[str] = ""
 
     @model_validator(mode='after')
     def verify_size(self) -> Self:
