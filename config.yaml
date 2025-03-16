@@ -19,7 +19,7 @@ LayoutChunking_options:
   
 
 Chunker:
-  chunking_method: "Layout"
+  chunking_method: "layout"
   chunking_options: "LayoutChunking_options"
 
 
