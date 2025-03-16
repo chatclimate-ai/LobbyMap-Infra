@@ -4,7 +4,9 @@ from docling_parser.parser.schemas import DocumentInput
 from docling_parser.parser.chunker import LayoutChunking
 import logging
 import os
+import time
 import re
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -75,7 +77,10 @@ class ParserPipeline:
         """
         """
         # Parse the PDF file and extract text content
+        start_time = time.time()
         content = self.parse(input_data)
+        end_time = time.time()
+        logger.info(f"Time taken to parse the file: {end_time - start_time:.2f} seconds")
 
 
         # Save the parsed content to a markdown file
@@ -179,5 +184,7 @@ class ParserPipeline:
         """
         """
         content = self.parse_file(input_data)
+        logger.info(f"Finished parsing file: {input_data.file_path}")
         chunks = self.chunk_file(content)
+        logger.info(f"Finished chunking file: {input_data.file_path}")
         return chunks
