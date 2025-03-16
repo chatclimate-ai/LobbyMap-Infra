@@ -33,4 +33,4 @@ COPY . /app
 EXPOSE 5000
 
 # Launch gunicorn with uvicorn workers
-CMD ["gunicorn", "docling_parser.api.server:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:5000", "--timeout", "600"]
+CMD ["gunicorn", "docling_parser.api.server:app", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:5000", "--timeout", "600"]
