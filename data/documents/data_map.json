@@ -70,6 +70,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/pdfBuilderDownload_Amazon2020Report.pdf"
     },
     {
+        "file_name": "Amazon_2023_Lobbying_Reports-5349ebdea5e4495abb6647d73981105c.pdf",
+        "num_chunks": 353,
+        "date": "2023",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.21,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Lobbying_Reports-5349ebdea5e4495abb6647d73981105c.pdf"
+    },
+    {
         "file_name": "Amazon_2023_Lobbying_Reports-5c392e1ecf704127abe502f38c805020.pdf",
         "num_chunks": 353,
         "date": "2023",
@@ -90,16 +100,6 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Lobbying_Reports-a16200aab6db46c29771c5656ebb09a9.pdf"
     },
     {
-        "file_name": "Amazon_2023_Lobbying_Reports-5349ebdea5e4495abb6647d73981105c.pdf",
-        "num_chunks": 353,
-        "date": "2023",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.21,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Lobbying_Reports-5349ebdea5e4495abb6647d73981105c.pdf"
-    },
-    {
         "file_name": "Amazon_Greenpeace_Click-Clean-Report-201710-07-2017.pdf",
         "num_chunks": 299,
         "date": "2016",
@@ -108,46 +108,6 @@
         "size": 0.34,
         "language": "latin-based",
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Greenpeace_Click-Clean-Report-201710-07-2017.pdf"
-    },
-    {
-        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-5638cd1314ca4d8e9df7a13b5cc8160a.pdf",
-        "num_chunks": 293,
-        "date": "2024",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.16,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-5638cd1314ca4d8e9df7a13b5cc8160a.pdf"
-    },
-    {
-        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-af610a6954d74be38ee1eb1e044da4b4.pdf",
-        "num_chunks": 293,
-        "date": "2024",
-        "author": "amazon",
-        "region": "global",
-        "size": 0.16,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-af610a6954d74be38ee1eb1e044da4b4.pdf"
-    },
-    {
-        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-d8c1930f2d284dc584a2b21d65524e9f.pdf",
-        "num_chunks": 293,
-        "date": "2024",
-        "author": "amazon",
-        "region": "california",
-        "size": 0.16,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-d8c1930f2d284dc584a2b21d65524e9f.pdf"
-    },
-    {
-        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-bcabbd5ef2a54dbdbe9f71ce9cf53053.pdf",
-        "num_chunks": 293,
-        "date": "2024",
-        "author": "amazon",
-        "region": "global",
-        "size": 0.16,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-bcabbd5ef2a54dbdbe9f71ce9cf53053.pdf"
     },
     {
         "file_name": "Amazon_2023_Sustainability_Report_select_pgs-adadc8e485144dcbb8733884133cf8a6.pdf",
@@ -168,6 +128,46 @@
         "size": 0.16,
         "language": "latin-based",
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-a36f0c734fdf46cb8c1e5d0f3d2f4158.pdf"
+    },
+    {
+        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-af610a6954d74be38ee1eb1e044da4b4.pdf",
+        "num_chunks": 293,
+        "date": "2024",
+        "author": "amazon",
+        "region": "global",
+        "size": 0.16,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-af610a6954d74be38ee1eb1e044da4b4.pdf"
+    },
+    {
+        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-5638cd1314ca4d8e9df7a13b5cc8160a.pdf",
+        "num_chunks": 293,
+        "date": "2024",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.16,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-5638cd1314ca4d8e9df7a13b5cc8160a.pdf"
+    },
+    {
+        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-d8c1930f2d284dc584a2b21d65524e9f.pdf",
+        "num_chunks": 293,
+        "date": "2024",
+        "author": "amazon",
+        "region": "california",
+        "size": 0.16,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-d8c1930f2d284dc584a2b21d65524e9f.pdf"
+    },
+    {
+        "file_name": "Amazon_2023_Sustainability_Report_select_pgs-bcabbd5ef2a54dbdbe9f71ce9cf53053.pdf",
+        "num_chunks": 293,
+        "date": "2024",
+        "author": "amazon",
+        "region": "global",
+        "size": 0.16,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_Sustainability_Report_select_pgs-bcabbd5ef2a54dbdbe9f71ce9cf53053.pdf"
     },
     {
         "file_name": "nvidia.pdf",
@@ -400,24 +400,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/CorporateEV_Alliance_NewMexico_ACT_ACCII_August2023_AccessedFebruary2024.pdf"
     },
     {
-        "file_name": "AmericaIsAllIn_USclimateaction_12.20_oct2021.pdf",
+        "file_name": "Amazon_Public-Testimony_John-Stephenson-Ohio-House_10-07-2017.pdf",
         "num_chunks": 15,
-        "date": "2020",
+        "date": "2016",
         "author": "amazon",
         "region": "united states",
-        "size": 0.05,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/AmericaIsAllIn_USclimateaction_12.20_oct2021.pdf"
-    },
-    {
-        "file_name": "Amazon_s_Policy_Positions_2023.pdf",
-        "num_chunks": 15,
-        "date": "2023",
-        "author": "amazon",
-        "region": "global",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_s_Policy_Positions_2023.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Public-Testimony_John-Stephenson-Ohio-House_10-07-2017.pdf"
     },
     {
         "file_name": "CERES_JointLetter_EPA_StrongPhase3Rule_December2023_AccessedDecember2023.pdf",
@@ -430,6 +420,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/CERES_JointLetter_EPA_StrongPhase3Rule_December2023_AccessedDecember2023.pdf"
     },
     {
+        "file_name": "AmericaIsAllIn_USclimateaction_12.20_oct2021.pdf",
+        "num_chunks": 15,
+        "date": "2020",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.05,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/AmericaIsAllIn_USclimateaction_12.20_oct2021.pdf"
+    },
+    {
         "file_name": "F2924039-Amazon_Consultation_Submission_-_EU_Standards_for_CO2_Reduction_in_Heavy_Duty_Vehicles_.pdf",
         "num_chunks": 15,
         "date": "2022",
@@ -440,24 +440,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/F2924039-Amazon_Consultation_Submission_-_EU_Standards_for_CO2_Reduction_in_Heavy_Duty_Vehicles_.pdf"
     },
     {
-        "file_name": "Amazon_Public-Testimony_John-Stephenson-Ohio-House_10-07-2017.pdf",
+        "file_name": "Amazon_s_Policy_Positions_2023.pdf",
         "num_chunks": 15,
-        "date": "2016",
+        "date": "2023",
         "author": "amazon",
-        "region": "united states",
+        "region": "global",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Public-Testimony_John-Stephenson-Ohio-House_10-07-2017.pdf"
-    },
-    {
-        "file_name": "Euractiv_Corporate-Giants-Urge-EU-To-Back-35_-Renewables-Target_19-12-2017.pdf",
-        "num_chunks": 14,
-        "date": "2017",
-        "author": "amazon",
-        "region": "eu",
-        "size": 0.0,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Euractiv_Corporate-Giants-Urge-EU-To-Back-35_-Renewables-Target_19-12-2017.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_s_Policy_Positions_2023.pdf"
     },
     {
         "file_name": "Henkel\u2019s 2022 Sustainability Report Highlights_ Regenerative Planet.pdf",
@@ -470,14 +460,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Henkel\u2019s 2022 Sustainability Report Highlights_ Regenerative Planet.pdf"
     },
     {
-        "file_name": "Amazon_2023_CDP-029e8d12cdf240068bb4ac2f99365fbe.pdf",
+        "file_name": "Euractiv_Corporate-Giants-Urge-EU-To-Back-35_-Renewables-Target_19-12-2017.pdf",
         "num_chunks": 14,
-        "date": "2023",
+        "date": "2017",
         "author": "amazon",
-        "region": "united states",
-        "size": 0.01,
+        "region": "eu",
+        "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_CDP-029e8d12cdf240068bb4ac2f99365fbe.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Euractiv_Corporate-Giants-Urge-EU-To-Back-35_-Renewables-Target_19-12-2017.pdf"
     },
     {
         "file_name": "Amazon_2023_CDP-dd4aef888c9b4b2981ab339731945a5c.pdf",
@@ -490,6 +480,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_CDP-dd4aef888c9b4b2981ab339731945a5c.pdf"
     },
     {
+        "file_name": "Amazon_2023_CDP-029e8d12cdf240068bb4ac2f99365fbe.pdf",
+        "num_chunks": 14,
+        "date": "2023",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.01,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2023_CDP-029e8d12cdf240068bb4ac2f99365fbe.pdf"
+    },
+    {
         "file_name": "Amazon_Financial-Times_US-Business-Split-CPP_10-07-2017.pdf",
         "num_chunks": 14,
         "date": "2016",
@@ -498,36 +498,6 @@
         "size": 0.01,
         "language": "latin-based",
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Financial-Times_US-Business-Split-CPP_10-07-2017.pdf"
-    },
-    {
-        "file_name": "bga_letter_to_chancellor_v7_final_Nov2023.pdf",
-        "num_chunks": 12,
-        "date": "2023",
-        "author": "amazon",
-        "region": "united kingdom",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/bga_letter_to_chancellor_v7_final_Nov2023.pdf"
-    },
-    {
-        "file_name": "Joint-Statement-confirming-the-Green-Deal_Jun2024-d91f3b5a07ba48939b401c5bd4c3d42b.pdf",
-        "num_chunks": 12,
-        "date": "2024",
-        "author": "amazon",
-        "region": "eu",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Joint-Statement-confirming-the-Green-Deal_Jun2024-d91f3b5a07ba48939b401c5bd4c3d42b.pdf"
-    },
-    {
-        "file_name": "Amazon_EUFeedback_SPI_11.2020_May2022.pdf",
-        "num_chunks": 12,
-        "date": "2020",
-        "author": "amazon",
-        "region": "eu",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_EUFeedback_SPI_11.2020_May2022.pdf"
     },
     {
         "file_name": "Amazon_Transportation_Nov_2020.pdf",
@@ -540,14 +510,34 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Transportation_Nov_2020.pdf"
     },
     {
-        "file_name": "Amazon_EUConsultation_SPI_06.2021_May2022.pdf",
+        "file_name": "Joint-Statement-confirming-the-Green-Deal_Jun2024-d91f3b5a07ba48939b401c5bd4c3d42b.pdf",
         "num_chunks": 12,
-        "date": "2021",
+        "date": "2024",
         "author": "amazon",
         "region": "eu",
-        "size": 0.35,
+        "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_EUConsultation_SPI_06.2021_May2022.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Joint-Statement-confirming-the-Green-Deal_Jun2024-d91f3b5a07ba48939b401c5bd4c3d42b.pdf"
+    },
+    {
+        "file_name": "bga_letter_to_chancellor_v7_final_Nov2023.pdf",
+        "num_chunks": 12,
+        "date": "2023",
+        "author": "amazon",
+        "region": "united kingdom",
+        "size": 0.01,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/bga_letter_to_chancellor_v7_final_Nov2023.pdf"
+    },
+    {
+        "file_name": "Amazon_EUFeedback_SPI_11.2020_May2022.pdf",
+        "num_chunks": 12,
+        "date": "2020",
+        "author": "amazon",
+        "region": "eu",
+        "size": 0.01,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_EUFeedback_SPI_11.2020_May2022.pdf"
     },
     {
         "file_name": "Joint-Statement-confirming-the-Green-Deal_Jun2024-dadc7151dadc4a75be3f493b5e730906.pdf",
@@ -558,6 +548,26 @@
         "size": 0.01,
         "language": "latin-based",
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Joint-Statement-confirming-the-Green-Deal_Jun2024-dadc7151dadc4a75be3f493b5e730906.pdf"
+    },
+    {
+        "file_name": "Amazon_EUConsultation_SPI_06.2021_May2022.pdf",
+        "num_chunks": 12,
+        "date": "2021",
+        "author": "amazon",
+        "region": "eu",
+        "size": 0.35,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_EUConsultation_SPI_06.2021_May2022.pdf"
+    },
+    {
+        "file_name": "Big_Companies_Urge_Biden,_Congress_to_Address_Climate_Change_-_WSJ.pdf",
+        "num_chunks": 11,
+        "date": "2020",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.01,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Big_Companies_Urge_Biden,_Congress_to_Address_Climate_Change_-_WSJ.pdf"
     },
     {
         "file_name": "Amazon_Energy_leaders_grapple_with_climate_targets__Reuters_March2021.pdf",
@@ -580,14 +590,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Columbus-Dispatch_Amazon-Official-Criticizes-Ohio-Wind-Standards_10-07-2017.pdf"
     },
     {
-        "file_name": "Big_Companies_Urge_Biden,_Congress_to_Address_Climate_Change_-_WSJ.pdf",
-        "num_chunks": 11,
-        "date": "2020",
+        "file_name": "Amazon_GCF-feedback_07-24-c8270c82127d4f45b9ed8040f9e41777.pdf",
+        "num_chunks": 10,
+        "date": "2024",
         "author": "amazon",
-        "region": "united states",
+        "region": "eu",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Big_Companies_Urge_Biden,_Congress_to_Address_Climate_Change_-_WSJ.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-c8270c82127d4f45b9ed8040f9e41777.pdf"
     },
     {
         "file_name": "Amazon_2019_Desmog-CEI_Oct2019.pdf",
@@ -600,24 +610,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_Desmog-CEI_Oct2019.pdf"
     },
     {
-        "file_name": "Amazon_GCF-feedback_07-24-c8270c82127d4f45b9ed8040f9e41777.pdf",
+        "file_name": "Amazon_GCF-feedback_07-24-d5342ed33f6440b1811b189c91a1e0fd.pdf",
         "num_chunks": 10,
         "date": "2024",
         "author": "amazon",
         "region": "eu",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-c8270c82127d4f45b9ed8040f9e41777.pdf"
-    },
-    {
-        "file_name": "Glasgow_is_Our_Business_October_2021.pdf",
-        "num_chunks": 10,
-        "date": "2021",
-        "author": "amazon",
-        "region": "global",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Glasgow_is_Our_Business_October_2021.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-d5342ed33f6440b1811b189c91a1e0fd.pdf"
     },
     {
         "file_name": "Amazon_GCF-feedback_07-24-0890f9dc1a9b4bea8262655102e4e2d7.pdf",
@@ -630,24 +630,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-0890f9dc1a9b4bea8262655102e4e2d7.pdf"
     },
     {
-        "file_name": "Amazon_GCF-feedback_07-24-d5342ed33f6440b1811b189c91a1e0fd.pdf",
+        "file_name": "Glasgow_is_Our_Business_October_2021.pdf",
         "num_chunks": 10,
-        "date": "2024",
+        "date": "2021",
         "author": "amazon",
-        "region": "eu",
+        "region": "global",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-d5342ed33f6440b1811b189c91a1e0fd.pdf"
-    },
-    {
-        "file_name": "Amazon_GCF-feedback_07-24-1120058ccedf40dc8a2204360ec8f2d8.pdf",
-        "num_chunks": 10,
-        "date": "2024",
-        "author": "amazon",
-        "region": "eu",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-1120058ccedf40dc8a2204360ec8f2d8.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Glasgow_is_Our_Business_October_2021.pdf"
     },
     {
         "file_name": "287822_Amazon---Q2-_-D2_445475_2020-01-20_17_06.pdf",
@@ -660,24 +650,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/287822_Amazon---Q2-_-D2_445475_2020-01-20_17_06.pdf"
     },
     {
-        "file_name": "Jeff_Bezos__Anyone_who_denies_climate_change_is__not_being_reasonable_.pdf",
-        "num_chunks": 8,
-        "date": "2020",
+        "file_name": "Amazon_GCF-feedback_07-24-1120058ccedf40dc8a2204360ec8f2d8.pdf",
+        "num_chunks": 10,
+        "date": "2024",
         "author": "amazon",
-        "region": "global",
+        "region": "eu",
         "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Jeff_Bezos__Anyone_who_denies_climate_change_is__not_being_reasonable_.pdf"
-    },
-    {
-        "file_name": "Amazon_Accelerates_Efforts_to_Fight_Climate_Change_-_The_New_York_Times.pdf",
-        "num_chunks": 8,
-        "date": "2019",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.0,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Accelerates_Efforts_to_Fight_Climate_Change_-_The_New_York_Times.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_GCF-feedback_07-24-1120058ccedf40dc8a2204360ec8f2d8.pdf"
     },
     {
         "file_name": "CLG_Oct2024_OpenLetter_UK-climate-leadership_Nov2024-fdee1705509b4538a5ab70ababc489a5.pdf",
@@ -690,6 +670,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/CLG_Oct2024_OpenLetter_UK-climate-leadership_Nov2024-fdee1705509b4538a5ab70ababc489a5.pdf"
     },
     {
+        "file_name": "Amazon_Accelerates_Efforts_to_Fight_Climate_Change_-_The_New_York_Times.pdf",
+        "num_chunks": 8,
+        "date": "2019",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.0,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Accelerates_Efforts_to_Fight_Climate_Change_-_The_New_York_Times.pdf"
+    },
+    {
         "file_name": "Joint-Letter-Resource-Platform_Renewable-35-Percent-Target_20-12-2017.pdf",
         "num_chunks": 8,
         "date": "2017",
@@ -700,6 +690,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Joint-Letter-Resource-Platform_Renewable-35-Percent-Target_20-12-2017.pdf"
     },
     {
+        "file_name": "Jeff_Bezos__Anyone_who_denies_climate_change_is__not_being_reasonable_.pdf",
+        "num_chunks": 8,
+        "date": "2020",
+        "author": "amazon",
+        "region": "global",
+        "size": 0.01,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Jeff_Bezos__Anyone_who_denies_climate_change_is__not_being_reasonable_.pdf"
+    },
+    {
         "file_name": "SAF-Coalition-CFPC-press-release_04-24-f7315a61f2134e77a6b39bd0f8f90a19.pdf",
         "num_chunks": 8,
         "date": "2024",
@@ -708,16 +708,6 @@
         "size": 0.0,
         "language": "latin-based",
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/SAF-Coalition-CFPC-press-release_04-24-f7315a61f2134e77a6b39bd0f8f90a19.pdf"
-    },
-    {
-        "file_name": "PRESIDENT_BIDEN__YOU_CAN_BE_THE_CLIMATE_PRESIDENT___Climate_Power_2020.pdf",
-        "num_chunks": 7,
-        "date": "2020",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.01,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/PRESIDENT_BIDEN__YOU_CAN_BE_THE_CLIMATE_PRESIDENT___Climate_Power_2020.pdf"
     },
     {
         "file_name": "C2ES_letter_Bidenclimatesolutions_jan2021.pdf",
@@ -740,24 +730,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Cargo-Owners-Stand-for-Maritime-Decarbonization_Oct-2021.pdf"
     },
     {
-        "file_name": "Ceres_CEVAletter_4.21_oct2021.pdf",
-        "num_chunks": 6,
-        "date": "2021",
+        "file_name": "PRESIDENT_BIDEN__YOU_CAN_BE_THE_CLIMATE_PRESIDENT___Climate_Power_2020.pdf",
+        "num_chunks": 7,
+        "date": "2020",
         "author": "amazon",
         "region": "united states",
-        "size": 0.0,
+        "size": 0.01,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_CEVAletter_4.21_oct2021.pdf"
-    },
-    {
-        "file_name": "Ceres_FWA_comments_24.1.22_may2023.pdf",
-        "num_chunks": 6,
-        "date": "2022",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.0,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_FWA_comments_24.1.22_may2023.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/PRESIDENT_BIDEN__YOU_CAN_BE_THE_CLIMATE_PRESIDENT___Climate_Power_2020.pdf"
     },
     {
         "file_name": "RE-Source_2018_Declaration_Nov2019.pdf",
@@ -770,6 +750,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/RE-Source_2018_Declaration_Nov2019.pdf"
     },
     {
+        "file_name": "Ceres_FWA_comments_24.1.22_may2023.pdf",
+        "num_chunks": 6,
+        "date": "2022",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.0,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_FWA_comments_24.1.22_may2023.pdf"
+    },
+    {
         "file_name": "Washington_SAF-BTC_joint-letter_02-23.pdf",
         "num_chunks": 6,
         "date": "2023",
@@ -780,34 +770,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Washington_SAF-BTC_joint-letter_02-23.pdf"
     },
     {
-        "file_name": "Ceres_EPA_letter_27.9.21.pdf",
-        "num_chunks": 5,
+        "file_name": "Ceres_CEVAletter_4.21_oct2021.pdf",
+        "num_chunks": 6,
         "date": "2021",
         "author": "amazon",
         "region": "united states",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_EPA_letter_27.9.21.pdf"
-    },
-    {
-        "file_name": "SAFCoalition_press-release_11-24-b867c4808abe444990f199d583bca15e.pdf",
-        "num_chunks": 5,
-        "date": "2024",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.0,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/SAFCoalition_press-release_11-24-b867c4808abe444990f199d583bca15e.pdf"
-    },
-    {
-        "file_name": "SAFCoalition_press-release_11-24-a3353dac1f814dd5a069d21d7b19303b.pdf",
-        "num_chunks": 5,
-        "date": "2024",
-        "author": "amazon",
-        "region": "united states",
-        "size": 0.0,
-        "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/SAFCoalition_press-release_11-24-a3353dac1f814dd5a069d21d7b19303b.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_CEVAletter_4.21_oct2021.pdf"
     },
     {
         "file_name": "wa-low-carbon-fuel-standard-amazon-letter-3.8.2021.pdf",
@@ -820,14 +790,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/wa-low-carbon-fuel-standard-amazon-letter-3.8.2021.pdf"
     },
     {
-        "file_name": "Support-Letter-for-Expanded-Tranche-2-CI-_REDI_-Program-12-20-2018.pdf",
+        "file_name": "SAFCoalition_press-release_11-24-a3353dac1f814dd5a069d21d7b19303b.pdf",
         "num_chunks": 5,
-        "date": "2019",
+        "date": "2024",
         "author": "amazon",
         "region": "united states",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Support-Letter-for-Expanded-Tranche-2-CI-_REDI_-Program-12-20-2018.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/SAFCoalition_press-release_11-24-a3353dac1f814dd5a069d21d7b19303b.pdf"
     },
     {
         "file_name": "C2ES_NetZeroInfrastructure_July2021.pdf",
@@ -840,6 +810,16 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/C2ES_NetZeroInfrastructure_July2021.pdf"
     },
     {
+        "file_name": "Ceres_EPA_letter_27.9.21.pdf",
+        "num_chunks": 5,
+        "date": "2021",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.0,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Ceres_EPA_letter_27.9.21.pdf"
+    },
+    {
         "file_name": "Amazon_2020_OurPositions_Jan2020.pdf",
         "num_chunks": 5,
         "date": "2020",
@@ -850,24 +830,24 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2020_OurPositions_Jan2020.pdf"
     },
     {
-        "file_name": "Amazon_2019_ClimatePledgeCW_Jan2020.pdf",
-        "num_chunks": 4,
+        "file_name": "Support-Letter-for-Expanded-Tranche-2-CI-_REDI_-Program-12-20-2018.pdf",
+        "num_chunks": 5,
         "date": "2019",
         "author": "amazon",
-        "region": "global",
+        "region": "united states",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_ClimatePledgeCW_Jan2020.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Support-Letter-for-Expanded-Tranche-2-CI-_REDI_-Program-12-20-2018.pdf"
     },
     {
-        "file_name": "Nikkei_\u30a2\u30de\u30be\u30f3\u3001100_\u518d\u30a8\u30cd\u5316\u30925\u5e74\u524d\u5012\u3057\u30002025\u5e74_Aug_2021.pdf",
-        "num_chunks": 4,
-        "date": "2021",
+        "file_name": "SAFCoalition_press-release_11-24-b867c4808abe444990f199d583bca15e.pdf",
+        "num_chunks": 5,
+        "date": "2024",
         "author": "amazon",
-        "region": "japan",
-        "size": 0.01,
-        "language": "japanese",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Nikkei_\u30a2\u30de\u30be\u30f3\u3001100_\u518d\u30a8\u30cd\u5316\u30925\u5e74\u524d\u5012\u3057\u30002025\u5e74_Aug_2021.pdf"
+        "region": "united states",
+        "size": 0.0,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/SAFCoalition_press-release_11-24-b867c4808abe444990f199d583bca15e.pdf"
     },
     {
         "file_name": "Amazon_2017-2019_SustainabilityPositions_Jan2020.pdf",
@@ -880,14 +860,34 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2017-2019_SustainabilityPositions_Jan2020.pdf"
     },
     {
-        "file_name": "Amazon_2019_CDP_Oct2019.pdf",
-        "num_chunks": 3,
+        "file_name": "Nikkei_\u30a2\u30de\u30be\u30f3\u3001100_\u518d\u30a8\u30cd\u5316\u30925\u5e74\u524d\u5012\u3057\u30002025\u5e74_Aug_2021.pdf",
+        "num_chunks": 4,
+        "date": "2021",
+        "author": "amazon",
+        "region": "japan",
+        "size": 0.01,
+        "language": "japanese",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Nikkei_\u30a2\u30de\u30be\u30f3\u3001100_\u518d\u30a8\u30cd\u5316\u30925\u5e74\u524d\u5012\u3057\u30002025\u5e74_Aug_2021.pdf"
+    },
+    {
+        "file_name": "Amazon_2019_ClimatePledgeCW_Jan2020.pdf",
+        "num_chunks": 4,
         "date": "2019",
         "author": "amazon",
         "region": "global",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_CDP_Oct2019.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_ClimatePledgeCW_Jan2020.pdf"
+    },
+    {
+        "file_name": "Amazon_2019_PublicPolicy_Oct2019.pdf",
+        "num_chunks": 3,
+        "date": "2019",
+        "author": "amazon",
+        "region": "united states",
+        "size": 0.0,
+        "language": "latin-based",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_PublicPolicy_Oct2019.pdf"
     },
     {
         "file_name": "JCLP_PressRelease_20231120.pdf",
@@ -900,14 +900,24 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/JCLP_PressRelease_20231120.pdf"
     },
     {
-        "file_name": "Amazon_2019_PublicPolicy_Oct2019.pdf",
+        "file_name": "Amazon_2019_CDP_Oct2019.pdf",
         "num_chunks": 3,
         "date": "2019",
         "author": "amazon",
-        "region": "united states",
+        "region": "global",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_PublicPolicy_Oct2019.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_2019_CDP_Oct2019.pdf"
+    },
+    {
+        "file_name": "JCLP_PressRelease_20231121.pdf",
+        "num_chunks": 2,
+        "date": "2023",
+        "author": "amazon",
+        "region": "",
+        "size": 0.0,
+        "language": "japanese",
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/JCLP_PressRelease_20231121.pdf"
     },
     {
         "file_name": "Amazon_-_CDP_-_www.cdp.net.pdf",
@@ -930,24 +940,14 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/FireShot_Capture_253_-_Amazon_Public_Policy_on_Twitter___We've_made_bold_commitments_to_redu__-_twitter.com.pdf"
     },
     {
-        "file_name": "JCLP_PressRelease_20231121.pdf",
-        "num_chunks": 2,
+        "file_name": "Amazon_Jan_2023_Meeting_Circular_Economy_Feb_2023.pdf",
+        "num_chunks": 1,
         "date": "2023",
         "author": "amazon",
-        "region": "",
-        "size": 0.0,
-        "language": "japanese",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/JCLP_PressRelease_20231121.pdf"
-    },
-    {
-        "file_name": "Amazon_Twitter_Amazon-Supports-Paris-Agreement_10-07-2017.pdf",
-        "num_chunks": 1,
-        "date": "2017",
-        "author": "amazon",
-        "region": "global",
+        "region": "eu",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Twitter_Amazon-Supports-Paris-Agreement_10-07-2017.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Jan_2023_Meeting_Circular_Economy_Feb_2023.pdf"
     },
     {
         "file_name": "Amazon_Twitter_Amazon-Supports-Clean-Energy-Climate-Policies_10-07-2017.pdf",
@@ -980,13 +980,13 @@
         "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/LeadOnClimate_May2021.pdf"
     },
     {
-        "file_name": "Amazon_Jan_2023_Meeting_Circular_Economy_Feb_2023.pdf",
+        "file_name": "Amazon_Twitter_Amazon-Supports-Paris-Agreement_10-07-2017.pdf",
         "num_chunks": 1,
-        "date": "2023",
+        "date": "2017",
         "author": "amazon",
-        "region": "eu",
+        "region": "global",
         "size": 0.0,
         "language": "latin-based",
-        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Jan_2023_Meeting_Circular_Economy_Feb_2023.pdf"
+        "url": "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002/Amazon_Twitter_Amazon-Supports-Paris-Agreement_10-07-2017.pdf"
     }
 ]
