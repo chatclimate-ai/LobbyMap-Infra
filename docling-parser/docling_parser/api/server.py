@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 from typing import Dict, Optional, List, Literal
 from docling_parser.parser.schemas import DocumentInput
 from docling_parser.parser.pipeline import ParserPipeline
