@@ -28,7 +28,7 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
-    restart: always
+    # restart: always
     depends_on:
       - frontend
       - feedback_api
@@ -41,8 +41,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/letsencrypt
-      - ./nginx/.htpasswd:/etc/nginx/auth/.htpasswd
+      # - ./certs:/etc/letsencrypt
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
     networks:
       - app_network
 
