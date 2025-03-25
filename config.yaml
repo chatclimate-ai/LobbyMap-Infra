@@ -34,7 +34,8 @@ Weaviate_options:
 
 Backend:
   file_system: "/app/data/documents"
-  file_system_server: "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002" # pdf_server:8002 # VAST_IP:8002
+  # file_system_server: "http://ec2-3-15-20-187.us-east-2.compute.amazonaws.com:8002" # pdf_server:8002 # VAST_IP:8002
+  file_system_server: "http://3.142.235.103/pdfs"
   data_map: "data_map.json"
   prompt_map: "prompt_map.json"
 
