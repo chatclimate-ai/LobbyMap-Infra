@@ -70,7 +70,7 @@ def upload_call(
             "size": size,
             "language": language
         }
-        response = requests.get("http://docling_api:5000/parse", params=params)
+        response = requests.get("http://docling_api:8888/parse", params=params)
         response.raise_for_status()
         chunks = response.json()["chunks"]
         

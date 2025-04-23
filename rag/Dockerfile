@@ -17,7 +17,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip inside the virtual environment
 RUN /opt/venv/bin/pip install --upgrade pip
 
-ENV TORCH_CUDA_ARCH_LIST="7.5"
+# ENV TORCH_CUDA_ARCH_LIST="7.5"
 
 # Set the working directory
 WORKDIR /app
@@ -38,4 +38,4 @@ WORKDIR /app/rag
 EXPOSE 8001
 
 # 7. Define the command to run the app
-CMD ["gunicorn", "backend.server:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]
+CMD ["gunicorn", "backend.server:app", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]

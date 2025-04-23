@@ -81,7 +81,7 @@ class DoclingParserLarge:
             accelerator: dict = kwargs.get("accelerator", {})
             accelerator_options = AcceleratorOptions(
                 num_threads=accelerator.get("num_threads", 8),
-                device=accelerator.get("device", AcceleratorDevice.CUDA),
+                device=accelerator.get("device", AcceleratorDevice.AUTO),
             )
             pipeline_options.accelerator_options = accelerator_options
 
