@@ -170,5 +170,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 .DS_Store
-data/mongodb-data/
-data/documents/markdown/
+data/
