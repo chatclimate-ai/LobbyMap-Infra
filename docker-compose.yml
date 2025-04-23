@@ -11,6 +11,7 @@ services:
       - feedback_api
       - rag_api
       - pdf_server
+      - docling_api
     ports:
       - "8501:8501"
     
@@ -20,7 +21,31 @@ services:
     networks:
       - app_network
 
-  
+  # ---------------------
+  # Ngnix service
+  # ---------------------
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    # restart: always
+    depends_on:
+      - frontend
+      - feedback_api
+      - rag_api
+      - docling_api
+      - pdf_server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./certs:/etc/letsencrypt
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
+    networks:
+      - app_network
+
   # ---------------------
   # PDF HTTP Server (Serves the PDFs)
   # ---------------------
@@ -51,6 +76,29 @@ services:
       MONGODB_URI: mongodb://lobbymap:lobbymap_pass@mongodb/feedback_db?retryWrites=true&w=majority
     networks:
       - app_network
+
+  # ---------------------
+  # Docling FastAPI service
+  # ---------------------
+  docling_api:
+    build: docling-parser/.
+    image: lobbymap-docling-api:latest
+    volumes:
+      - ./data/documents:/app/data/documents
+      - ./config.yaml:/app/config.yaml
+    ports:
+      - "5000:5000"
+    restart: on-failure:0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ "gpu" ]
+    networks:
+      - app_network
+
 
   # ---------------------
   # MongoDB service
@@ -90,7 +138,7 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - ./mongodb-data:/data/db
+      - ./data/mongodb-data:/data/db
     networks:
       - app_network
 

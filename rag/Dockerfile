@@ -1,12 +1,14 @@
-# Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.4.1).
-FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+FROM python:3.12-slim
 
 
-# Install essential system packages
+# 1. Set working directory
+WORKDIR /app
+
+# 2. Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-dev python3-venv \
-    build-essential ninja-build zlib1g-dev && \
-    rm -rf /var/lib/apt/lists/*
+    build-essential \
+    zlib1g-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create and activate a virtual environment in /opt/venv
 RUN python3 -m venv /opt/venv
@@ -26,14 +28,14 @@ COPY requirements.txt /app/
 # Install dependencies from requirements.txt inside the virtual environment
 RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application code
+# 5. Copy the rest of your application code
 COPY . /app
 
-# Switch to the rag folder
-WORKDIR /app/rag
 
-# Expose the port that gunicorn will listen on
+WORKDIR /app/rag
+# 6. Expose the port your FastAPI (or other framework) will listen on
+
 EXPOSE 8001
 
-# Launch gunicorn with uvicorn workers
-CMD ["gunicorn", "backend.server:app", "-w", "3", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001", "--timeout", "600"]
+# 7. Define the command to run the app
+CMD ["gunicorn", "backend.server:app", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]

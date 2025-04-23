@@ -6,9 +6,9 @@ from weaviate.classes.aggregate import GroupByAggregate
 from weaviate.classes.query import MetadataQuery
 from contextlib import asynccontextmanager
 from typing import Dict, Optional, List, Union
-from collections import Counter
 from backend.utils import rank, generate
-from lobbymap_search.etl.schemas import DocumentInput, InputMetadata
+from lobbymap_search.etl.schemas import Chunk
+from pydantic import BaseModel
 import yaml
 
 description = """
@@ -49,12 +49,6 @@ CHUNKING_OPTIONS = config[config["Chunker"]["chunking_options"]]
 
 pipeline = PdfDocumentPipeline(
     collection_name=COLLECTION_NAME,
-    parser=PARSER,
-    parser_options=PARSER_OPTIONS,
-    save_locally=SAVE_PARSED_CONTENT,
-    save_dir=MD_OUTPUT_DIR,
-    chunking_method=CHUNKING_METHOD,
-    chunking_options=CHUNKING_OPTIONS,
     vectorizer=VECTORIZER
 )
 
@@ -114,7 +108,7 @@ async def get_collections_count() -> Dict:
         HTTPException: If the database query fails.
     """
     try:
-        pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
         response = pdf_docs.aggregate.over_all(total_count=True)
 
         return {
@@ -143,7 +137,7 @@ async def get_unique_values(attribute: str) -> Dict:
     """
     try:
         # Get the collection
-        collection = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        collection = pipeline.client.collections.get(COLLECTION_NAME)
 
         # Perform an aggregate query to get unique authors
         response = collection.aggregate.over_all(
@@ -181,7 +175,7 @@ async def count_unique_values(attribute: str) -> Dict:
     """
     try:
         # Get the collection
-        collection = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        collection = pipeline.client.collections.get(COLLECTION_NAME)
 
         response = collection.aggregate.over_all(
             group_by=GroupByAggregate(prop=attribute, limit=1000),
@@ -209,7 +203,7 @@ async def delete_document_from_weaviate(file_name: str) -> Dict:
         HTTPException: If the file is not found or deletion fails.
     """
     try:
-        collection = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        collection = pipeline.client.collections.get(COLLECTION_NAME)
         count = collection.aggregate.over_all(
             group_by=GroupByAggregate(prop="file_name", limit=1000)
         )
@@ -238,7 +232,7 @@ async def delete_weaviate_collection() -> Dict:
         HTTPException: If the deletion fails.
     """
     try:
-        pipeline.pdfdocument_client.collections.delete(COLLECTION_NAME)
+        pipeline.client.collections.delete(COLLECTION_NAME)
         return {"message": "Collection deleted successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -274,7 +268,7 @@ async def get_collection_names() -> Dict:
         HTTPException: If the query fails.
     """
     try:
-        collections = pipeline.pdfdocument_client.collections.list_all(simple=False).keys()
+        collections = pipeline.client.collections.list_all(simple=False).keys()
         return {"collections": list(collections)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -284,7 +278,7 @@ async def read_files_from_collection() -> Dict:
     """
     """
     try:
-        collection = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        collection = pipeline.client.collections.get(COLLECTION_NAME)
 
         # Perform an aggregate query to get unique files and their chunk counts
         response = collection.aggregate.over_all(
@@ -306,7 +300,7 @@ async def read_files_from_collection() -> Dict:
             file_properties = collection.query.fetch_objects(
                 filters=filter_criteria, 
                 limit=1,
-                return_properties=["author", "date", "region", "size", "language"]
+                return_properties=["author", "date", "region", "size", "language"] #, "upload_time"]
                 ).objects[0].properties
 
             file["date"] = file_properties["date"]
@@ -314,6 +308,7 @@ async def read_files_from_collection() -> Dict:
             file["region"] = file_properties["region"]
             file["size"] = file_properties["size"]
             file["language"] = file_properties["language"]
+            # file["upload_time"] = file_properties["upload_time"]
             file["url"] = FILE_SYSTEM_SERVER + "/" +  file["file_name"]
         
         return {"files": result}
@@ -338,7 +333,7 @@ async def read_all_collection() -> Dict:
     """
     try:
         all_objects = []
-        pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
         for item in pdf_docs.iterator(cache_size=50):
             properties = item.properties
             all_objects.append(properties)
@@ -349,60 +344,45 @@ async def read_all_collection() -> Dict:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class InsertPayload(BaseModel):
+    file_name: str
+    chunks: List[str]
+    author: str
+    date: Optional[str] = ""
+    region: Optional[str] = ""
+    size: Optional[float] = 0.0
+    language: Optional[str] = "latin-based"
+    # upload_time: Optional[str] = ""
 
 
-@app.get("/collections/insert")
+
+@app.post("/collections/insert")
 async def insert(
-        file_path: str,
-        author: str,
-        date: Optional[str] = "",
-        region: Optional[str] = "",
-        size: Optional[float] = 0.0,
-        language: Optional[str] = "latin-based"
-    ):
+        payload: InsertPayload
+        ) -> Dict:
+    
 
-    pdf_files = [
-        DocumentInput(
-            file_path=file_path, 
-            metadata = InputMetadata(
-                author=author, 
-                date=date, 
-                region=region,
-                size=size,
-                language=language
-            )
+    chunks = [
+        Chunk(
+            file_name=payload.file_name,
+            content=content,
+            author=payload.author,
+            date=payload.date,
+            region=payload.region,
+            size=payload.size,
+            language=payload.language
         )
+        for content in payload.chunks
     ]
 
     try:
-
-        chunks = pipeline.run(pdf_files=pdf_files)
+        pipeline.run(chunks=chunks)
         return {
             "num_chunks": len(chunks)
         }
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-      
-
-
-@app.get("/collections/insert_many")
-async def insert_many(pdf_files: List[DocumentInput]):
-
-    try:
-        chunks = pipeline.run(pdf_files=pdf_files)
-        # Use Counter to count occurrences of each file_name
-        file_name_counts = Counter(d["file_name"] for d in chunks)
-
-        # Convert Counter to a regular dictionary
-        result = dict(file_name_counts)
-        # {file_name: num_chunks}
-
-        return result
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @app.get("/retrieve")
@@ -420,7 +400,7 @@ async def run_semantic_query(query: str) -> Dict:
         HTTPException: If the retrieval process fails.
     """
     try:
-        pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
         response = pdf_docs.query.near_text(
             query=f"{query}",
             limit=5,
@@ -515,7 +495,7 @@ async def run_filter_query(
             filter_expr = wvc.query.Filter.all_of(filters)
 
         # Query the Vector DB with the constructed filters
-        pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
         if int(top_k) != top_k:
             response = pdf_docs.query.near_text(
                 query=query,
@@ -666,7 +646,7 @@ async def rag(
             filter_expr = wvc.query.Filter.all_of(filters)
 
         # Query the Vector DB with the constructed filters
-        pdf_docs = pipeline.pdfdocument_client.collections.get(COLLECTION_NAME)
+        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
         response = pdf_docs.query.near_text(
             query=query,
             limit=top_k,
