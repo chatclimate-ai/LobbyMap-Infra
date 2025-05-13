@@ -651,80 +651,116 @@ def upload_dialog():
 
 def handle_chat_input(author, date, region, filename, num_documents):
     """
-    Handles user input via the chat_input widget. Fetches mock results,
-    stores them, and triggers a rerun to display the updated conversation.
+    Handles user input via the chat_input widget. Uses a prompt queue to
+    process one RAG query per rerun, allowing incremental display, retry-once
+    behavior, and retry UI for persistent failures.
     """
-    col1, col2, col3 = st.columns([4, 1, 1], gap="small", vertical_alignment="bottom")
-    if "query_select" not in st.session_state:
-        st.session_state["query_select"] = "Select a query..."
+    col1, col2, col3 = st.columns([0.7, 0.1, 0.2], gap="small")
 
+    # --- Initialize state ---
+    if "process" not in st.session_state:
+        st.session_state["process"] = False
+    if "prompt_queue" not in st.session_state:
+        st.session_state.prompt_queue = []
+    if "failed_prompts" not in st.session_state:
+        st.session_state.failed_prompts = []
+
+    # --- UI Controls ---
     with col1:
-        queries = ["Select a query..."] + [p["query"] for p in list_prompts(PROMPT_MAP)]
-        st.selectbox(
-            "Select a query...", 
-            queries, 
-            label_visibility="collapsed", 
-            key="query_select"
-            )
-
+        if st.button(label="Process", key="process_query", use_container_width=True, help="Process the query"):
+            st.session_state["process"] = True
 
     with col2:
         if st.button("📤", help="upload files", key="upload_icon"):
             st.session_state.show_upload_dialog = True
 
     with col3:
-        if st.button(
-            label = "Clear Chat",
-            key = "clear_chat",
-            help = "Clear the chat history"
-            ):
+        if st.button("Clear Chat", key="clear_chat", help="Clear the chat history"):
             st.session_state.messages = []
             st.session_state.removals = {}
             st.session_state.ranks = {}
             st.session_state.generated_stances = {}
+            st.session_state.prompt_queue = []
+            st.session_state.failed_prompts = []
             st.rerun()
-    
-    if st.session_state.show_upload_dialog:
+
+    # --- Upload Dialog ---
+    if st.session_state.get("show_upload_dialog", False):
         upload_dialog()
 
+    # --- Upload Feedback ---
     if "upload_success" in st.session_state:
         st.success(st.session_state.upload_success)
         del st.session_state.upload_success
-    
+
     if "upload_fail" in st.session_state:
         st.error(st.session_state.upload_fail)
         del st.session_state.upload_fail
-    
-    selected_query = st.session_state["query_select"]
-    if selected_query == "Select a query...":
-        return
-    
-    # Do your retrieval logic here:
-    prompt = next((p["prompt"] for p in list_prompts(PROMPT_MAP) 
-                   if p["query"] == selected_query), "")
-    
-    # Add user message to session
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with st.spinner("Retrieving information..."):
-        # Make retriever call
-        response = retriever_call(
-            query=prompt,
-            author=author,
-            date=date,
-            region=region,
-            file_name=filename,
-            top_k=num_documents
-        )
+    # --- Load Prompts on Process ---
+    if st.session_state["process"]:
+        prompts = list_prompts(PROMPT_MAP)
+        st.session_state.prompt_queue = prompts
+        st.session_state["process"] = False
+        st.rerun()
 
-    # Store the assistant's response in session state
-    st.session_state.messages.append({
-        "role": "assistant",
-        "pdf_docs": response["pdf_docs"]
-    })
-    del st.session_state["query_select"]
-    st.rerun()
+    # --- Process Prompts One by One ---
+    if st.session_state.prompt_queue:
+        current_prompt = st.session_state.prompt_queue.pop(0)
+
+        st.chat_message("user").markdown(current_prompt["query"])
+        st.session_state.messages.append({
+            "role": "user",
+            "content": current_prompt["prompt"]
+        })
+
+        success = False
+        with st.spinner(f"Retrieving information..."):
+            for attempt in range(2):  # Try up to 2 times
+                try:
+                    response = retriever_call(
+                        query=current_prompt["prompt"],
+                        author=author,
+                        date=date,
+                        region=region,
+                        file_name=filename,
+                        top_k=num_documents
+                    )
+
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "pdf_docs": response["pdf_docs"]
+                    })
+                    success = True
+                    break  # Success, no need to retry
+
+                except Exception as e:
+                    error_message = str(e)
+
+        if not success:
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": f"❌ **Failed to retrieve results** for: `{current_prompt['query']}`."
+            })
+            st.session_state.failed_prompts.append(current_prompt)
+
+        st.rerun()
+
+    # --- Retry UI for Failed Prompts ---
+    if st.session_state.failed_prompts:
+        st.markdown("---")
+        st.markdown("### 🔁 Retry Failed Queries")
+        for idx, failed_prompt in enumerate(st.session_state.failed_prompts):
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"**{failed_prompt['query']}**")
+            with col2:
+                if st.button("Retry", key=f"retry_{idx}"):
+                    st.session_state.prompt_queue.insert(0, failed_prompt)
+                    st.session_state.failed_prompts.pop(idx)
+                    st.rerun()
+
+
 
 
 def build_feedback_payloads(response: dict, msg_index: int) -> list:

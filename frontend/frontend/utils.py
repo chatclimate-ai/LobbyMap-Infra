@@ -169,4 +169,4 @@ def retriever_call(
         return response_data
     
     except:
-        return {"pdf_docs": {}}
+        raise Exception("Failed to retrieve data.")
