@@ -109,33 +109,39 @@ class PdfDocumentPipeline:
 
     def _load_into_vdb(self, chunk_dicts: List[Dict]):
         """
-        Loading the
+        Stream chunks into Weaviate in small memory-safe batches.
         """
         if not chunk_dicts:
             raise ValueError("No chunk dicts created. Please run the transform method first.")
 
         self.connect_to_weaviate()
-
-        # loading into the Vector DB
+        
         try:
             collection = self.client.collections.get(self.collection_name)
-
-            with collection.batch.fixed_size(batch_size=5) as batch:
-                for chunk_dict in chunk_dicts:
-                    batch.add_object(properties=chunk_dict)
             
-            failed_objs = collection.batch.failed_objects
-            if failed_objs:
-                for failed_obj in failed_objs:
-                    logger.error(f"Failed to load object into the Vector DB: {failed_obj}\n")
-                raise Exception(f"Failed to load objects into the Vector DB. {failed_obj}")
-            else:
-                logger.info("All objects were successfully added.")
+            # Process in batches to avoid RAM overload
+            BATCH_SIZE = 5
+            for i in range(0, len(chunk_dicts), BATCH_SIZE):
+                mini_batch = chunk_dicts[i:i+BATCH_SIZE]
+                with collection.batch.fixed_size(batch_size=BATCH_SIZE) as batch:
+                    for chunk in mini_batch:
+                        batch.add_object(properties=chunk)
+                
+                failed_objs = collection.batch.failed_objects
+                if failed_objs:
+                    for failed_obj in failed_objs:
+                        logger.error(f"Failed to load object: {failed_obj}")
+                    raise Exception(f"Failed to load some objects into Vector DB.")
+                
+                del mini_batch
+                gc.collect()
+            
+            logger.info("All objects successfully added to Weaviate.")
 
-            gc.collect()
         except Exception as e:
-            logger.error(f"Failed to load chunked pdf doc into the Vector DB: {e}")
-            raise e
+            logger.error(f"Failed to load chunks: {e}")
+            raise
+
             
         
     def run(self, chunks: List[Chunk]):

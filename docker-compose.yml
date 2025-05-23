@@ -83,9 +83,11 @@ services:
   docling_api:
     build: docling-parser/.
     image: lobbymap-docling-api:latest
+    shm_size: "8g"
     volumes:
       - ./data/documents:/app/data/documents
       - ./config.yaml:/app/config.yaml
+      - /opt/dlami/nvme/easyocr:/root/.EasyOCR
     ports:
       - "5000:5000"
     restart: on-failure:0
@@ -150,6 +152,7 @@ services:
       context: rag/.
       dockerfile: Dockerfile
     image: lobbymap-rag-api:latest
+    shm_size: "2g"
     ports:
       - "8001:8001"
     depends_on:
@@ -158,6 +161,7 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml
       - ./data/documents:/app/data/documents
+      - /opt/dlami/nvme/huggingface:/root/.cache/huggingface
     deploy:
       resources:
         reservations:
@@ -181,7 +185,7 @@ services:
       - '8080'
       - --scheme
       - http
-    image: cr.weaviate.io/semitechnologies/weaviate:1.27.0
+    image: cr.weaviate.io/semitechnologies/weaviate:1.30.3
     ports:
       - "8080:8080"
       - "50051:50051"
@@ -211,7 +215,7 @@ services:
       - "11434:11434"
     pull_policy: always
     volumes:
-      - ollama_data:/root/.ollama
+      - /opt/dlami/nvme/ollama:/root/.ollama
     tty: true
     restart: unless-stopped
     deploy:
@@ -224,11 +228,11 @@ services:
     networks:
       - app_network
 
-# ---------------------
-# Define volumes
-# ---------------------
-volumes:
-  ollama_data:
+# # ---------------------
+# # Define volumes
+# # ---------------------
+# volumes:
+#   ollama_data:
 
 # ---------------------
 # Define the shared network

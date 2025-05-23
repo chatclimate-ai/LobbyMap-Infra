@@ -13,10 +13,20 @@ from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
 from docling_core.types.doc import ImageRefMode
 from typing import Union, List, Generator, Optional, Literal
 import torch
+import gc
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+    print(f"CUDA GPU is enabled: {torch.cuda.get_device_name(0)}")
+else:
+    raise OSError(
+        "No GPU or MPS device found. Please check your environment and ensure GPU or MPS support is configured."
+    )
+
 
 
 class DoclingParserLarge:
@@ -89,7 +99,8 @@ class DoclingParserLarge:
             pipeline_options.do_ocr = True
             pipeline_options.ocr_options = EasyOcrOptions(
                 force_full_page_ocr= False,
-                lang=self.map_language(ocr_language)
+                lang=self.map_language(ocr_language),
+                use_gpu= True,
                 )
             
 
@@ -128,6 +139,7 @@ class DoclingParserLarge:
             
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
+        gc.collect()
         return data
 
     
@@ -350,7 +362,8 @@ class DoclingPDFParser:
             pipeline_options.do_ocr = True
             pipeline_options.ocr_options = EasyOcrOptions(
                 force_full_page_ocr=True, 
-                lang=self.map_language(ocr_language)
+                lang=self.map_language(ocr_language),
+                use_gpu= True
                 )
            
 
@@ -388,6 +401,7 @@ class DoclingPDFParser:
                 raise ValueError(f"Failed to parse the document: {result.errors}")
         torch.cuda.empty_cache()
         torch.cuda.synchronize()
+        gc.collect()
         return data
     
     @staticmethod

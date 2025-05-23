@@ -41,7 +41,7 @@ def create_header():
     """
     Display the app's header with a logo and a title.
     """
-    col1, col2 = st.columns([0.5, 8])
+    col1, col2 = st.columns([0.5, 8], gap="small", vertical_alignment="bottom")
     col1.image("../images/logo.jpg", width=78)
     col2.title("LobbyMap Search")
 
@@ -99,24 +99,37 @@ def display_chat_history():
                 st.markdown(message["content"])
 
 
+
 def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
     """
-    Render documents stored under the 'pdf_docs' structure:
-      {
-        "search": {...},
-        "evidences": [ ... ]
-      }
+    Render a user-friendly interface to review and interact with evidence from PDF documents.
     """
     query = pdf_docs_struct.get("search", {}).get("query", "")
     pdf_evidences = pdf_docs_struct.get("evidences", [])
     total_chunks = len(pdf_evidences)
 
     if not pdf_evidences:
-        st.markdown("No results found.")
+        st.warning("⚠️ No relevant evidence found.")
         return
 
-    # ---------------------
-    # Iterate over each evidence
+    # ---------- Summary Table ----------
+    st.markdown("### 📊 Summary of Retrieved Evidence")
+    summary_rows = [
+        {
+            "Chunk": i + 1,
+            "File": e["evidence"].get("file_name", "N/A"),
+            "Date": e["evidence"].get("date", "N/A"),
+            "Region": e["evidence"].get("region", "N/A"),
+            "Confidence": round(e.get("confidence_score", 0.0), 3),
+            "Evidence": e["evidence"].get("content", ""),
+        }
+        for i, e in enumerate(pdf_evidences)
+    ]
+    st.dataframe(summary_rows, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # ---------- Evidence Review ----------
     for idx, evidence_item in enumerate(pdf_evidences):
         doc = evidence_item.get("evidence", {})
         content = doc.get("content", "").strip()
@@ -125,91 +138,65 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
         region = doc.get("region", "N/A")
         file_name = doc.get("file_name", "N/A")
         conf_score = evidence_item.get("confidence_score", 0.0)
-    
-        # 1) Display truncated content with a popover for the full text
-        if content:
-            # st.text(truncate_content(f"{content}\n\n", 30))
-            # with st.popover("Read more"):
-            #     st.text(content)
-            st.text(truncate_content(f"{content}\n\n", 30))
-            col1, col2 = st.columns([1, 1])
 
-            with col1:
-                with st.popover("Read more"):
-                    st.text(content)
-            
-            with col2:
-                with st.popover("Reveal score"):
-                    st.markdown(f"Confidence Score: {conf_score:.3f}")
-
-        # 2) Display metadata
-        with st.expander("View Metadata"):
-            st.markdown(f"- **Date:** {date}")
-            st.markdown(f"- **File Name:** {file_name}")
-            st.markdown(f"- **Region:** {region}")
-            st.markdown(f"- **Author:** {author}")
-
-        # 3) Removal & Ranking Controls
         chunk_key = f"msg_{msg_index}_chunk_{idx}"
-        if chunk_key not in st.session_state.removals:
-            st.session_state.removals[chunk_key] = False
+        st.session_state.removals.setdefault(chunk_key, False)
+        st.session_state.ranks.setdefault(chunk_key, idx)
+        st.session_state.generated_stances.setdefault(chunk_key, {
+            "stance": None,
+            "stance_text": None,
+            "stance_score": None,
+            "updated_generated_stance": None
+        })
 
-        removal_state = st.session_state.removals[chunk_key]
-        icon_path = "../images/removed-bin.png" if removal_state else "../images/bin.png"
+        st.markdown(f"### 🧩 Evidence {idx + 1} of {total_chunks}")
+        st.text(f"> {truncate_content(content, 30)}")
 
-        if chunk_key not in st.session_state.ranks:
-            st.session_state.ranks[chunk_key] = idx
-        rank_options = [i + 1 for i in range(total_chunks)]  # Start from 1 in the dropdown
+        with st.expander("🔎 Full Content & Metadata"):
+            st.text(content)
+            st.markdown("---")
+            st.markdown(f"**📄 File:** `{file_name}`")
+            st.markdown(f"**📅 Date:** `{date}`")
+            st.markdown(f"**🌍 Region:** `{region}`")
+            st.markdown(f"**✍️ Author:** `{author}`")
+            st.markdown(f"**📈 Confidence Score:** `{conf_score:.3f}`")
+           
 
-        if chunk_key not in st.session_state.generated_stances:
-            st.session_state.generated_stances[chunk_key] = {
-                "stance": None, 
-                "stance_text": None, 
-                "stance_score": None, 
-                "updated_generated_stance": None
-                }
+        # ---- Controls: Remove / Rank / Generate ----
+        col1, col2, col3 = st.columns([1, 1, 1], vertical_alignment="bottom")
 
-        col_icon, col_button, col_rank, col_stance = st.columns([0.2, 1.5, 1.5, 1.5])
-        with col_icon:
-            st.image(icon_path, width=30)
-
-        with col_button:
-            label_text = "Unremove" if removal_state else "Remove"
-            if st.button(label_text, key=f"toggle_{chunk_key}"):
-                st.session_state.removals[chunk_key] = not removal_state
+        with col1:
+            remove_label = "✅ Keep" if st.session_state.removals[chunk_key] else "🗑️ Remove"
+            if st.button(remove_label, key=f"remove_{chunk_key}", use_container_width=True):
+                st.session_state.removals[chunk_key] = not st.session_state.removals[chunk_key]
                 st.rerun()
 
-        with col_rank:
-            if not removal_state:
-                selected_rank_ui = st.selectbox(
-                    "Rank:",
-                    rank_options,
+        with col2:
+            if not st.session_state.removals[chunk_key]:
+                rank = st.selectbox(
+                    "rank",
+                    options=[f"🔢 Rank {i + 1}" for i in range(total_chunks)],
                     index=st.session_state.ranks[chunk_key],
-                    key=f"{chunk_key}_rank_select"
+                    key=f"rank_{chunk_key}",
+                    label_visibility="collapsed",
                 )
-                st.session_state.ranks[chunk_key] = selected_rank_ui - 1
+                st.session_state.ranks[chunk_key] = int(rank.split(" ")[-1]) - 1
 
-        with col_stance:
-            if not removal_state:
-                if st.button("Generate Stance", key=f"generate_stance_{chunk_key}"):
-                    with st.spinner("Generating stance..."):
-                        # Make stance generation call
-                        stance_payload = generator_call(
-                            query=query,
-                            evidence=content,
-                            # author=author
-                        )
-                        st.session_state.generated_stances[chunk_key] = {
+        with col3:
+            if not st.session_state.removals[chunk_key]:
+                if st.button("🧠 Generate Stance", key=f"genstance_{chunk_key}", use_container_width=True):
+                    with st.spinner("Analyzing stance..."):
+                        stance_payload = generator_call(query=query, evidence=content)
+                        st.session_state.generated_stances[chunk_key].update({
                             **stance_payload,
-                            "updated_generated_stance": stance_payload["stance"]  # Default to generated stance
-                        }
+                            "updated_generated_stance": stance_payload["stance"]
+                        })
                         st.rerun()
-        
-        if not removal_state:
-            # Display the stance score as a dropdown
+
+        # ---- Stance Review and Selection ----
+        if not st.session_state.removals[chunk_key]:
             stance_data = st.session_state.generated_stances[chunk_key]
             if stance_data["stance"] is not None:
-                # Dropdown options for stance values
                 stance_options = [-2, -1, 0, 1, 2]
 
                 # Default selected value
@@ -223,7 +210,9 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
                     key=f"stance_dropdown_{chunk_key}"
                 )
                 # Store the updated stance in session state
-                st.session_state.generated_stances[chunk_key]["updated_generated_stance"] = selected_stance
+                if selected_stance != st.session_state.generated_stances[chunk_key]["updated_generated_stance"]:
+                    st.session_state.generated_stances[chunk_key]["updated_generated_stance"] = selected_stance
+                    st.rerun()
 
 
                 # Determine box and background colors based on selected stance value
@@ -258,41 +247,34 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
 
             # Display stance explanation below the row
             if stance_data["stance_text"]:
-                st.markdown(f"**Stance Explanation:** {stance_data['stance_text']}")
+                st.markdown(f"📖 **Stance Explanation:** {stance_data['stance_text']}")
 
-        st.markdown(f"{'-' * 50}\n\n")
+        st.markdown("---")
 
-    # ----------------------
-    # SINGLE "Send Feedback" BUTTON for the entire set of evidences
-    # (Ensures a unique key by including msg_index)
-    if st.button("Send Feedback", key=f"send_feedback_{msg_index}"):
+    # ---------- Final Feedback Button ----------
+    st.markdown("### ✅ Final Step")
+    if st.button("📤 Send Feedback", key=f"send_feedback_{msg_index}"):
         feedback_payloads = build_feedback_payloads(
             {"pdf_docs": pdf_docs_struct},
             msg_index=msg_index
         )
 
-        all_success = True  # To track if all requests succeed
+        all_success = True
         for idx, payload in enumerate(feedback_payloads):
             try:
                 response_api = requests.post("http://feedback_api:8000/feedback/", json=payload)
-                response_api.raise_for_status()  # Raise an error for HTTP issues
+                response_api.raise_for_status()
             except requests.exceptions.RequestException as e:
-                all_success = False  # If any request fails, set to False
-
-                # Try to extract the response details for better error reporting
-                if hasattr(e, 'response') and e.response is not None:
-                    error_message = e.response.text  # Extract error response body
-                    error_status = e.response.status_code  # Extract HTTP status code
-                    st.error(f"Error for payload {idx + 1}: {error_status} - {error_message}")
+                all_success = False
+                if hasattr(e, 'response') and e.response:
+                    st.error(f"Chunk {idx + 1} failed: {e.response.status_code} - {e.response.text}")
                 else:
-                    st.error(f"Failed to send feedback for payload {idx + 1}: {str(e)}")
-
-                # Optionally break the loop to stop further processing
+                    st.error(f"Chunk {idx + 1} failed: {str(e)}")
                 break
 
         if all_success:
-            # Show a toast-like notification
-            st.success("Feedback successfully sent!")
+            st.success("🎉 All feedback successfully submitted!")
+
 
 
 def show_prompt_info(
@@ -638,10 +620,19 @@ def upload_dialog():
                         st.rerun()
                     
                     except Exception as e:
-                        st.session_state.upload_fail = f"An error occurred while processing the file {file_name}. Please try again. {str(e)}"
-                        # delete the file 
-                        # os.remove(file_path)
-                        st.rerun()
+                        # check if the file is actually in weaviate
+                        existing_files = get_collections()["files"]
+                        existing_file_names = [f["file_name"] for f in existing_files]
+                        if file_name in existing_file_names:
+                            st.session_state.upload_success = f"File '{file_name}' and metadata submitted."
+                            st.rerun()
+
+
+                        else:
+                            st.session_state.upload_fail = f"An error occurred while processing the file {file_name}. Please try again. {str(e)}"
+                            # delete the file 
+                            # os.remove(file_path)
+                            st.rerun()
 
     with col2:
         if st.button("Cancel", key="cancel_upload"):
@@ -654,25 +645,35 @@ def handle_chat_input(author, date, region, filename, num_documents):
     Handles user input via the chat_input widget. Fetches mock results,
     stores them, and triggers a rerun to display the updated conversation.
     """
-    col1, col2, col3 = st.columns([4, 1, 1], gap="small", vertical_alignment="bottom")
-    if "query_select" not in st.session_state:
-        st.session_state["query_select"] = "Select a query..."
+    col1, col2, col3, col4 = st.columns([4, 1, 1, 1], gap="small", vertical_alignment="bottom")
+
+
+    if "process" not in st.session_state:
+        st.session_state["process"] = False
+    if "prompt_queue" not in st.session_state:
+        st.session_state.prompt_queue = []
+    if "failed_prompts" not in st.session_state:
+        st.session_state.failed_prompts = []
 
     with col1:
-        queries = ["Select a query..."] + [p["query"] for p in list_prompts(PROMPT_MAP)]
-        st.selectbox(
-            "Select a query...", 
-            queries, 
-            label_visibility="collapsed", 
-            key="query_select"
-            )
-
+        queries = ["All queries"] + [p["query"] for p in list_prompts(PROMPT_MAP)]
+        options = st.multiselect(
+            "Select a query ...",
+            queries
+        )
 
     with col2:
+        if st.button("Process", key="process_button"):
+            if options:
+                st.session_state["process"] = True
+            else:
+                st.warning("No options selected.")
+
+    with col3:
         if st.button("📤", help="upload files", key="upload_icon"):
             st.session_state.show_upload_dialog = True
 
-    with col3:
+    with col4:
         if st.button(
             label = "Clear Chat",
             key = "clear_chat",
@@ -694,37 +695,78 @@ def handle_chat_input(author, date, region, filename, num_documents):
     if "upload_fail" in st.session_state:
         st.error(st.session_state.upload_fail)
         del st.session_state.upload_fail
-    
-    selected_query = st.session_state["query_select"]
-    if selected_query == "Select a query...":
-        return
-    
-    # Do your retrieval logic here:
-    prompt = next((p["prompt"] for p in list_prompts(PROMPT_MAP) 
-                   if p["query"] == selected_query), "")
-    
-    # Add user message to session
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with st.spinner("Retrieving information..."):
-        # Make retriever call
-        response = retriever_call(
-            query=prompt,
-            author=author,
-            date=date,
-            region=region,
-            file_name=filename,
-            top_k=num_documents
-        )
 
-    # Store the assistant's response in session state
-    st.session_state.messages.append({
-        "role": "assistant",
-        "pdf_docs": response["pdf_docs"]
-    })
-    del st.session_state["query_select"]
-    st.rerun()
+
+    # --- Load Prompts on Process ---
+    if st.session_state["process"]:
+        if "All queries" in options:
+            st.session_state.prompt_queue = list_prompts(PROMPT_MAP)
+        else:
+            st.session_state.prompt_queue = [
+                prompt for prompt in list_prompts(PROMPT_MAP) if prompt["query"] in options
+            ]
+        st.session_state["process"] = False
+        st.rerun()
+
+    # --- Process Prompts One by One ---
+    if st.session_state.prompt_queue:
+        current_prompt = st.session_state.prompt_queue.pop(0)
+
+        st.chat_message("user").markdown(current_prompt["query"])
+        st.session_state.messages.append({
+            "role": "user",
+            "content": current_prompt["prompt"]
+        })
+        success = False
+        with st.spinner(f"Retrieving information..."):
+            for attempt in range(2):  # Try up to 2 times
+                try:
+                    response = retriever_call(
+                        query=current_prompt["prompt"],
+                        author=author,
+                        date=date,
+                        region=region,
+                        file_name=filename,
+                        top_k=num_documents
+                    )
+
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "pdf_docs": response["pdf_docs"]
+                    })
+                    success = True
+                    break  # Success, no need to retry
+
+                except Exception as e:
+                    error_message = str(e)
+
+        if not success:
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": f"❌ **Failed to retrieve results** for: `{current_prompt['query']}`."
+            })
+            st.session_state.failed_prompts.append(current_prompt)
+
+        st.rerun()
+    # --- Retry UI for Failed Prompts ---
+    if st.session_state.failed_prompts:
+        st.markdown("---")
+        st.markdown("### 🔁 Retry Failed Queries")
+        for idx, failed_prompt in enumerate(st.session_state.failed_prompts):
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"**{failed_prompt['query']}**")
+            with col2:
+                if st.button("Retry", key=f"retry_{idx}"):
+                    st.session_state.prompt_queue.insert(0, failed_prompt)
+                    st.session_state.failed_prompts.pop(idx)
+                    st.rerun()
+
+
+
+    
+    
 
 
 def build_feedback_payloads(response: dict, msg_index: int) -> list:
@@ -819,9 +861,12 @@ def main():
 
     with st.container():
         display_chat_history()
+    
 
     author, date, region, filename, num_documents = render_sidebar()
     handle_chat_input(author, date, region, filename, num_documents)
+
+    
 
 
 
