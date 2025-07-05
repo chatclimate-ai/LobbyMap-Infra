@@ -253,27 +253,43 @@ def render_pdf_docs(msg_index: int, pdf_docs_struct: dict):
 
     # ---------- Final Feedback Button ----------
     st.markdown("### ✅ Final Step")
-    if st.button("📤 Send Feedback", key=f"send_feedback_{msg_index}"):
-        feedback_payloads = build_feedback_payloads(
+    feedback_payloads = build_feedback_payloads(
             {"pdf_docs": pdf_docs_struct},
             msg_index=msg_index
         )
-
-        all_success = True
-        for idx, payload in enumerate(feedback_payloads):
-            try:
-                response_api = requests.post("http://feedback_api:8000/feedback/", json=payload)
-                response_api.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                all_success = False
-                if hasattr(e, 'response') and e.response:
-                    st.error(f"Chunk {idx + 1} failed: {e.response.status_code} - {e.response.text}")
-                else:
-                    st.error(f"Chunk {idx + 1} failed: {str(e)}")
-                break
+    all_success = True
+    error = None
+    for idx, payload in enumerate(feedback_payloads):
+        try:
+            response_api = requests.post("http://feedback_api:8000/feedback/", json=payload)
+            response_api.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            all_success = False
+            if hasattr(e, 'response') and e.response:
+                error = f"Chunk {idx + 1} with error: {e.response.status_code} - {e.response.text}"
+            else:
+                error = f"Chunk {idx + 1} with error: {str(e)}"
+            break
+    
+    if st.button("📤 Send Feedback", key=f"send_feedback_{msg_index}"):
+        # all_success = True
+        # for idx, payload in enumerate(feedback_payloads):
+        #     try:
+        #         response_api = requests.post("http://feedback_api:8000/feedback/", json=payload)
+        #         response_api.raise_for_status()
+        #     except requests.exceptions.RequestException as e:
+        #         all_success = False
+        #         if hasattr(e, 'response') and e.response:
+        #             st.error(f"Chunk {idx + 1} failed: {e.response.status_code} - {e.response.text}")
+        #         else:
+        #             st.error(f"Chunk {idx + 1} failed: {str(e)}")
+        #         break
 
         if all_success:
             st.success("🎉 All feedback successfully submitted!")
+        else:
+            st.error(f"❌ Failed to submit feedback for: {error}")
+            
 
 
 
@@ -720,7 +736,7 @@ def handle_chat_input(author, date, region, filename, num_documents):
         })
         success = False
         with st.spinner(f"Retrieving information..."):
-            for attempt in range(2):  # Try up to 2 times
+            for _ in range(2):  # Try up to 2 times
                 try:
                     response = retriever_call(
                         query=current_prompt["prompt"],
@@ -740,6 +756,7 @@ def handle_chat_input(author, date, region, filename, num_documents):
 
                 except Exception as e:
                     error_message = str(e)
+                    
 
         if not success:
             st.session_state.messages.append({
