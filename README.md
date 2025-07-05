@@ -1,24 +1,31 @@
 # Lobbymap
-The main repository for the InfluenceMap LobbyMap Platform. This repository contains the implementation of a Retrieval-Augmented Generation (RAG) system designed for multilingual retrieval tasks. The system processes large document datasets, splits them into meaningful chunks, and retrieves the most relevant chunks to answer user queries using semantic similarity techniques.
+The main repository for the InfluenceMap LobbyMap Search Platform. This repository contains the implementation of a Retrieval-Augmented Generation (RAG) system designed for multilingual evidence retrieval tasks. The system processes large document datasets, splits them into meaningful chunks, retrieves the most relevant evidences to answer user queries, and uses them to generate a stance on corporate climate policy engagement.
 
 ---
+
+## Live Demo & Website
+
+- **Live Platform**: [https://lobbymap.org](https://lobbymap.org)  
+- **Video Walkthrough**: [YouTube Demo](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
 
 ## Overview
 
 The RAG system combines state-of-the-art parsing, chunking, embedding, and retrieval methods to efficiently handle multilingual documents. The key components include:
 
-1. **Parsing:** Converts documents into plain text while optionally preserving layout.
-2. **Chunking:** Splits text into smaller chunks suitable for vectorization and retrieval.
+1. **Parsing:** Converts documents into plain text while preserving layout.
+2. **Chunking:** Semantically splits text into smaller chunks suitable for vectorization and retrieval.
 3. **Embedding:** Converts chunks into dense vector representations using multilingual models.
 4. **Retrieval:** Retrieves the most relevant chunks using a vector database and ranks them based on semantic similarity.
+5. **Generation:** Generates a stance on company climate policy engagement based on retrieved evidence.
 
 ---
 
 ## Features
 
 - **Multilingual Support:** Handles documents in multiple languages using multilingual embedding models.
-- **Flexible Parsing:** Supports both layout-aware and structure-agnostic parsing methods.
-- **Dynamic Chunking:** Adapts chunk sizes based on layout structure and token limits.
+- **Layout-aware Parsing:** Supports layout-preserving parsing.
+- **Semantic Chunking:** Adapts chunk sizes based on semantic similarities.
 - **Efficient Retrieval:** Uses vector databases for fast and scalable similarity search.
 
 ## Using the system in a VM in VastAI
