@@ -14,22 +14,26 @@ parser_options:
 
 
 #### Chunking options ####
-LayoutChunking_options:
-  min_words: 30
-  
+SemanticChunking_options:
+  model: "minishlab/potion-base-8M"
+  similarity_threshold: 0.75
+  double_pass_merge: True
+  chunk_size: 1536
+  device: "mps" # "cuda", "cpu", "mps", "npu"
 
+  
 Chunker:
-  chunking_method: "layout"
-  chunking_options: "LayoutChunking_options"
+  chunking_method: "Semantic"
+  chunking_options: "SemanticChunking_options"
 
 
 
 ### Weaviate options ###
 Weaviate_options:
-  collection_name: "alpha_v0"
-  vectorizer: "bge-m3" 
+  collection_name: "V3_docling_semantic_nomic"
+  vectorizer: "nomic-embed-text:latest" 
   reranker: "BAAI/bge-reranker-v2-m3"
-  generator: "qwen2.5:latest"
+  generator: "qwen3:1.7b"
 
 
 Backend:
