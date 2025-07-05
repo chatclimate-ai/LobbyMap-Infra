@@ -6,7 +6,7 @@ from weaviate.classes.aggregate import GroupByAggregate
 from weaviate.classes.query import MetadataQuery
 from contextlib import asynccontextmanager
 from typing import Dict, Optional, List, Union
-from backend.utils import rank, generate
+from backend.utils import rank, generate, init_reranker
 from lobbymap_search.etl.schemas import Chunk
 from pydantic import BaseModel
 import yaml
@@ -73,6 +73,7 @@ ARTIFACTS = {
 async def lifespan(app: FastAPI):
     # Startup: connect to Weaviate
     pipeline.connect_to_weaviate()
+    app.state.reranker = init_reranker(RERAKER)
     yield
     # Shutdown: close the Weaviate connection
     pipeline.close()
@@ -385,69 +386,6 @@ async def insert(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/retrieve")
-async def run_semantic_query(query: str) -> Dict:
-    """
-    Run a semantic query to retrieve evidence from the collection.
-
-    Parameters:
-        query (str): The query string to search for.
-
-    Returns:
-        dict: A dictionary containing ranked evidence, confidence scores, and the query.
-
-    Raises:
-        HTTPException: If the retrieval process fails.
-    """
-    try:
-        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
-        response = pdf_docs.query.near_text(
-            query=f"{query}",
-            limit=5,
-            return_metadata=MetadataQuery(
-                certainty=True,
-                )
-        )
-        confidence_scores: List[float] = []
-        evidences: List[Dict] = []
-
-        for o in response.objects:
-            confidence_score = o.metadata.certainty
-            evidence = o.properties
-
-            confidence_scores.append(confidence_score)
-            evidences.append(evidence)
-        
-        rank_scores = rank(RERAKER, query, evidences)
-        
-        # Sort the evidences and confidence scores based on the rank scores
-        ranked_evidences = [
-            {
-                "evidence": i,
-                "confidence_score": j,
-                "rank_score": k
-            }
-
-            for i, j, k in sorted(
-                zip(evidences, confidence_scores, rank_scores),
-                key=lambda x: x[2],
-                reverse=True
-            )
-        ]
-
-        return {
-            "pdf_docs": {
-                "search": {
-                    "query": query,
-                },
-                "artifacts": ARTIFACTS,
-                "evidences": ranked_evidences
-            }
-        }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/retrieve/filter")
 async def run_filter_query(
@@ -526,8 +464,9 @@ async def run_filter_query(
 
             confidence_scores.append(confidence_score)
             evidences.append(evidence)
-        
-        rank_scores = rank(RERAKER, query, evidences)
+
+        reranker_model = app.state.reranker
+        rank_scores = rank(reranker_model, query, evidences)
 
         ranked_evidences = [
             {
@@ -592,124 +531,6 @@ async def generate_stance(query: str, evidence: str, author: Optional[str] = Non
             "stance": generated_stance["score"],
             "stance_text": generated_stance["stance_text"],
             "stance_score": 0.0
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
-@app.get("/generate/rag")
-async def rag(
-        query: str,
-        author: Optional[str] = "",
-        date: Optional[str] = "",
-        region: Optional[str] = "",
-        file_name: Optional[str] = "",
-        top_k: Optional[int] = 5
-    ) -> Dict:
-    """
-    Run a full retrieval-augmented generation (RAG) process.
-
-    Parameters:
-        query (str): The query string to search for.
-        author (str, optional): Filter by author.
-        date (str, optional): Filter by date.
-        region (str, optional): Filter by region.
-        file_name (str, optional): Filter by file name.
-        top_k (int, optional): Number of top results to return (default: 5).
-
-    Returns:
-        dict: A dictionary containing ranked evidence and generated stance.
-
-    Raises:
-        HTTPException: If the RAG process fails.
-    """
-    try:
-        # Initialize filters list
-        filters = []
-
-        # Add each filter conditionally based on provided parameters
-        if author:
-            filters.append(wvc.query.Filter.by_property("author").equal(author))
-        if date:
-            filters.append(wvc.query.Filter.by_property("date").equal(date))
-        if region:
-            filters.append(wvc.query.Filter.by_property("region").equal(region))
-        if file_name:
-            filters.append(wvc.query.Filter.by_property("file_name").equal(file_name))
-
-        # Combine filters if there are any; use "and" to require all conditions to match
-        filter_expr = None
-        if filters:
-            filter_expr = wvc.query.Filter.all_of(filters)
-
-        # Query the Vector DB with the constructed filters
-        pdf_docs = pipeline.client.collections.get(COLLECTION_NAME)
-        response = pdf_docs.query.near_text(
-            query=query,
-            limit=top_k,
-            filters=filter_expr,
-            return_metadata=MetadataQuery(
-                certainty=True,
-                )
-        )
-
-        confidence_scores: List[float] = []
-        evidences: List[Dict] = []
-
-        for o in response.objects:
-            confidence_score = o.metadata.certainty
-            evidence = o.properties
-
-            confidence_scores.append(confidence_score)
-            evidences.append(evidence)
-        
-        rank_scores = rank(RERAKER, query, evidences)
-        ranked_evidences = [
-            {
-                "evidence": i,
-                "confidence_score": j,
-                "rank_score": k
-            }
-
-            for i, j, k in sorted(
-                zip(evidences, confidence_scores, rank_scores),
-                key=lambda x: x[2],
-                reverse=True
-            )
-        ]
-       
-        # Call LLM
-        stances = []
-        for evd in ranked_evidences:
-            stance = generate(
-                GENERATOR, 
-                evd["evidence"]["content"], 
-                query, 
-                evd["evidence"]["author"]
-                )
-            stances.append(stance)
-
-        for i, evd in enumerate(ranked_evidences):
-            evd["stance"] = stances[i]["score"]
-            evd["stance_text"] = stances[i]["stance_text"]
-            evd["stance_score"] = 0.0
-    
-     
-        return {
-            "pdf_docs": {
-                "search": {
-                    "query": query,
-                    "author": author,
-                    "date": date,
-                    "region": region,
-                    "file_name": file_name,
-                    "top_k": top_k
-                },
-                "evidences": ranked_evidences
-            }
         }
 
     except Exception as e:
