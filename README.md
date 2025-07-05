@@ -5,8 +5,8 @@ The main repository for the InfluenceMap LobbyMap Search Platform. This reposito
 
 ## Live Demo & Website
 
-- **Live Platform**: [https://lobbymap.org](https://lobbymap.org)  
-- **Video Walkthrough**: [YouTube Demo](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+- **Live Platform**: [http://lobbymap.sureal.ai]([https://lobbymap.org](http://18.216.117.221/))  
+- **Video Walkthrough**: [YouTube Demo](https://www.youtube.com/watch?v=gYZcwy2Fld0)
 
 
 ## Overview
