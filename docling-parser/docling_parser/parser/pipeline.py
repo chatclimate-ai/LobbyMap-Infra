@@ -1,7 +1,7 @@
 from typing import Literal, List
 from docling_parser.parser.docling_parse import DoclingPDFParser, DoclingParserLarge
 from docling_parser.parser.schemas import DocumentInput
-from docling_parser.parser.chunker import LayoutChunking
+from docling_parser.parser.chunker import SemanticChunking
 import logging
 import os
 import time
@@ -23,7 +23,7 @@ class ParserPipeline:
             parser_options: dict = {},
             save_locally: bool = False, 
             save_dir: str = "output",
-            chunking_method: str = "layout",
+            chunking_method: str = "Semantic",
             chunking_options: dict = {}
             ):
         """
@@ -39,8 +39,8 @@ class ParserPipeline:
         self.save_dir = save_dir
         self.parser_options = parser_options
 
-        if chunking_method == "layout":
-            self.chunker = LayoutChunking(**chunking_options)
+        if chunking_method == "Semantic":
+            self.chunker = SemanticChunking(**chunking_options)
         else:
             raise ValueError(f"Invalid chunking method specified: {chunking_method}")
 
