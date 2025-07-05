@@ -1,13 +1,21 @@
 from typing import List, Dict, Optional
 from backend.templates import read_prompt_template, read_tool
-from tenacity import retry, wait_fixed, stop_after_attempt
 from ollama import Client
 import jinja2
 from FlagEmbedding import FlagReranker
+import json
+import re
 
+
+def init_reranker(reranker_name: str):
+    model = FlagReranker(
+        reranker_name,
+        use_fp16=True
+    )
+    return  model
 
 def rank(
-        model_name: str, 
+        model,
         query: str, 
         evidences: List[Dict]
         ) -> List:
@@ -20,60 +28,14 @@ def rank(
     :return: A list of ranked evidences
     """
     evidence_contents = [chunk.get("content") for chunk in evidences]
-    rank_scores = bge_rerank(model_name, query, evidence_contents)
+    sentence_pairs = [[query, evidence] for evidence in evidence_contents]
+
+    rank_scores = model.compute_score(sentence_pairs, normalize=True)
     return rank_scores
 
-    # if model_name.startswith("BAAI"):
-    #     rank_scores = bge_rerank(model_name, query, evidence_contents)
-    
-    # else:
-    #     rank_scores = cross_encoder_rerank(model_name, query, evidence_contents)
-    
-    # return rank_scores
 
 
 
-def bge_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List:
-    """
-    A function to rerank the documents using the BGE model.
-    :param query: The query to search for
-    :param documents: A list of documents to rerank
-    :return: A list of reranked documents
-    """
-
-    model = FlagReranker(
-        model_name,
-        use_fp16=False,
-        devices=["cuda:0"],
-        )
-
-    sentence_pairs = [[query, evidence] for evidence in evidence_contents]
-    return model.compute_score(sentence_pairs, normalize=True)
-
-
-# def cross_encoder_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List:
-#     """"
-#     Rerank the documents using the Jina Reranker.
-#     :param query: The query to rerank the documents against.
-#     :param documents: A list of documents to rerank.
-#     """
-#     model = CrossEncoder(
-#         model_name,
-#         automodel_args={"torch_dtype": "auto"},
-#         trust_remote_code=True,
-#     )
-   
-#     sentence_pairs = [[query, evidence] for evidence in evidence_contents]
-#     return model.predict(sentence_pairs, convert_to_tensor=True).tolist()
-
-
-
-
-# "jinaai/jina-reranker-v2-base-multilingual", max_length=1024
-# "mixedbread-ai/mxbai-rerank-large-v1", max_length=512, english only
-# "cross-encoder/ms-marco-MiniLM-L-6-v2", max_length=512
-# "BAAI/bge-reranker-v2-m3", max_length=8192
-# "BAAI/bge-reranker-v2-gemma", max_length=8192
 
 
 
@@ -81,7 +43,7 @@ def bge_rerank(model_name:str, query: str, evidence_contents: List[str]) -> List
 
 PROMPT_TEMPLATE: str = read_prompt_template("stance_prompt")
 TOOL: dict = read_tool("stance_schema")
-
+CLIENT = Client(host="http://ollama:11434")
 
 def generate_stance_prompt(
         evidence: str,
@@ -104,10 +66,36 @@ def generate_stance_prompt(
     )
     return prompt
 
+def parse_json(content:str):
+    json_blocks = re.findall(r"\{[\s\S]+?\}", content)
+    json_obj = None
+    for block in reversed(json_blocks):
+        try:
+            # PATCH: Fix common truncation issues (missing ]}})
+            if '"evidence_scores": [' in block and not block.strip().endswith("]}}"):
+                block = block.strip() + "]}}"
+
+            parsed = json.loads(block)
+            if "arguments" in parsed and "evidence_scores" in parsed["arguments"]:
+                json_obj = parsed
+                break
+        except json.JSONDecodeError as err:
+            continue
+    
+    if json_obj is None:
+        raise ValueError("No valid JSON block found in the output.")
+
+    # Extract score and reason
+    score_str =  " " + str(json_obj["arguments"]["evidence_scores"][0]["score"])
+    reason = json_obj["arguments"]["evidence_scores"][0]["reason"]
+
+    return {
+        "score": int(score_str),
+        "stance_text": reason
+    }
 
 
 
-@retry(wait=wait_fixed(3), stop=stop_after_attempt(3))
 def generate(
     model_name:str, 
     evidence: str,
@@ -122,11 +110,8 @@ def generate(
             author
         )
 
-        # Initialize Ollama client
-        client = Client(host="http://ollama:11434")
-
         # Get response from the model
-        response = client.chat(
+        response = CLIENT.chat(
             model= model_name,
             messages=[
                 {
@@ -140,14 +125,24 @@ def generate(
         )
         # Get stance scores and reasons
         arguments = response.get("message", {}).get("tool_calls", [])[0].get("function", {}).get("arguments", {}).get("evidence_scores", [])[0]
-
-
+        print("Using tool call parsing")
         return {
             "score": arguments.get("score", 0),
             "stance_text": arguments.get("reason", "Failed to generate stance.")
         }
 
-    except:
+    except IndexError as e:
+        # Fallback to parsing JSON from content
+        content = response.get("message", {}).get("content", "")
+        parsed_result = parse_json(content)
+
+        print("Using content parsing")
+        return parsed_result
+
+
+
+    except Exception as e:
+        print(f"Error generating stance: {e}")
         return {
             "score": 0,
             "stance_text": "Failed to generate stance."
