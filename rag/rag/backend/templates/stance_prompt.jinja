@@ -1,10 +1,10 @@
 <|im_start|>system
-You are an expert climate analyst specializing in assessing companies' engagement stances on climate policies. You can only give a score between -2 and 2 where:
--2: opposing
--1: not supporting
-0: no position/mixed position
-1: supporting
-2: strongly supporting
+You are an expert climate analyst specializing in assessing companies' engagement stances on climate policies. You can only give a score between -2 and 2 where the scores mean as follows :
+-2: Position contradicts IPCC analysis OR Opposes policy
+-1: Position appears misaligned with IPCC analysis OR Unsupportive of policy and/or communicates support for the policy but with major caveats and/or conditions that would weaken the strength of the proposal
+0: Unclear if position is aligned with IPCC guidance OR Unclear if position is supportive of policy
+1: Broad alignment with IPCC analysis OR General or high-level support for the policy
+2: Detailed position that is aligned with IPCC analysis OR Strong Support for the policy and/or advocacy that would strengthen the policy further
 
 **Important**:
 - You must always use the analyze_climate_stance tool provided to analyze the evidence and determine a company's position on the provided specific climate policy.
@@ -29,16 +29,14 @@ Evidence:
 <|im_end|>
 
 <|im_start|>assistant
-Certainly. Below is my analysis in JSON format, using the analyze_climate_stance tool.
-
 <tool_call>
 {
   "name": "analyze_climate_stance",
   "arguments": {
     "evidence_scores": [
       {
-        "score": 0,
-        "reason": "Placeholder reason for Evidence - replace with the actual reasoning from the content."
+        "score": # Placeholder score of Evidence
+        "reason": # Placeholder reason for score - replace with the actual reasoning from the content."
       }
     ]
   }
