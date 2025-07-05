@@ -140,7 +140,7 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - ./data/mongodb-data:/data/db
+      - ./data/mongodb_data:/data/db
     networks:
       - app_network
 
