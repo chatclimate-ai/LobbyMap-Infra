@@ -31,7 +31,7 @@ Chunker:
 ### Weaviate options ###
 Weaviate_options:
   collection_name: "V3_docling_semantic_nomic"
-  vectorizer: "nomic-embed-text:latest" 
+  vectorizer: "nomic-embed-text:v1.5" 
   reranker: "BAAI/bge-reranker-v2-m3"
   generator: "qwen3:1.7b"
 
