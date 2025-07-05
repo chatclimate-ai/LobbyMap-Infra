@@ -53,7 +53,7 @@ class FeedbackToolServer:
             status_code=status.HTTP_201_CREATED,
         )
         async def create_feedback(feedback: EvidenceModel):
-            feedback_dict = feedback.dict()
+            feedback_dict = feedback.model_dump()
             evidence = await self.db.feedback_collection.insert_one(feedback_dict)
             created_feedback = await self.db.feedback_collection.find_one({"_id": evidence.inserted_id})
             return self.feedback_helper(created_feedback)
