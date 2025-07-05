@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Literal, List
+from typing import Optional, Literal, List, Union
 
 
 class EvidenceSearchModel(BaseModel):
@@ -23,9 +23,9 @@ class EvidenceSearchModel(BaseModel):
         default=None,
         description="The file name that was used to search for evidence",
     )
-    top_k: int = Field(
+    top_k: Union[int, float] = Field(
         ...,
-        description="The number of top evidences to be retrieved",
+        description="The top evidences to be retrieved",
     )
 
 
