@@ -1,5 +1,5 @@
 # Start from the NVIDIA CUDA runtime image for Ubuntu 24.04 (with CUDA 12.4.1).
-FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.0-devel-ubuntu24.04
 
 
 # Install essential system packages
