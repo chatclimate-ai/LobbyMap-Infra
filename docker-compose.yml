@@ -42,7 +42,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       # - ./certs:/etc/letsencrypt
-      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
+      # - ./nginx/.htpasswd:/etc/nginx/.htpasswd
     networks:
       - app_network
 
