@@ -1,62 +1,54 @@
 [
     {
-        "query": "Q1: Climate Science Transparency\t",
-        "prompt": "Is the company clear and transparent about its position on climate change science? This query concerns companies influence over the science of climate change, or the public or policymakers\u2019 understanding of it. It is important because companies has influenced climate change policy through producing doubt around the science\u2019s validity, and through downplaying the implications of climate change and correspondingly what the political response should be. We are looking for companies to talk about climate change. In particular GHG emissions (or land use, forests in a climate context). However, it is important that they are also linking together GHG emissions and climate change. Look out for companies talking about carbon/GHG emissions and climate change separately - like they are not intrinsically linked, as they are potentially expressing their public support for a climate denial. Highest scores are reserved for companies that clearly reference/link rising human activities, GHG emissions and the physical/climatic impact (and/or) the IPCC's reporting."
+        "query": "Q1: Energy and Resource Efficiency",
+        "prompt": "Is the organization supporting policy and legislative measures to address climate change: energy efficiency policy, standards, and targets"
     },
     {
-        "query": "Q10: Energy Transition and Zero emission technologies",
-        "prompt": "Is the organization supporting an IPCC-aligned transition of the economy away from carbon-emitting technologies, including supporting relevant policy and legislative measures to enable this transition?  We are concerned with how companies/trade associations are influencing the broader energy mix, for example in electricity production, is the source coal or wind? We are also concerned with the transitions that need to take place within certain industries. For example, heavy industry (steel, cement, chemicals) also must transition away from fossil fuels. Depending on the industry, this could include technologies and energy sources such as hydrogen, carbon capture and storage, or biomass. As such, this query covers a wide range of policies and potential transition technologies. We also assess engagement on specific policy measures to promote zero/low carbon transition. For example, a car company supporting policies to support electric cars being used in cities."
+        "query": "Q2: Transparency on Legislation",
+        "prompt": "Is the organisation transparent about its positions on climate change legislation/policy and its activities to influence it?"
     },
     {
-        "query": "Q2: Alignment with IPCC on Climate Action",
-        "prompt": "Is the organization supporting the science-based response to climate change as set out by the IPCC? "
+        "query": "Q3: Carbon Tax",
+        "prompt": "Is the organisation supporting policy and legislative measures to address climate change: carbon tax"
     },
     {
-        "query": "Q3: Supporting the Need for Regulations",
-        "prompt": "To what extent does the organization express the need for regulatory intervention to resolve the climate crisis? "
+        "query": "Q4: Climate Science Transparency",
+        "prompt": "Is the organization transparent and clear about its position on climate change science?"
     },
     {
-        "query": "Q4: Support of UN Climate Process",
-        "prompt": "Is the organization supporting the UNFCCC process on climate change? "
+        "query": "Q5: GHG Emission Regulation",
+        "prompt": "Is the organization supporting policy and legislative measures to address climate change: Standards, targets, and other regulatory measures directly targeting Greenhouse Gas emissions"
     },
     {
-        "query": "Q6: Carbon Tax",
-        "prompt": "Is the organisation supporting policy and legislative measures to address climate change: carbon tax."
+        "query": "Q6: Disclosure on Relationships",
+        "prompt": "Is the organization transparent about its involvement with industry associations that are influencing climate policy, including the extent to which it is aligned with these groups on climate?"
     },
     {
-        "query": "Q7: Emissions Trading",
+        "query": "Q7: Energy Transition and Zero emission technologies",
+        "prompt": "Is the organization supporting an IPCC-aligned transition of the economy away from carbon-emitting technologies, including supporting relevant policy and legislative measures to enable this transition?"
+    },
+    {
+        "query": "Q8: Renewable Energy",
+        "prompt": "Is the organization supporting policy and legislative measures to address climate change: Renewable energy legislation, targets, subsidies, and other policy"
+    },
+    {
+        "query": "Q9: Alignment with IPCC on Climate Action",
+        "prompt": "Is the organization supporting the science-based response to climate change as set out by the IPCC?"
+    },
+    {
+        "query": "Q10: Support of UN Climate Process",
+        "prompt": "Is the organization supporting the UN FCCC process on climate change?"
+    },
+    {
+        "query": "Q11: Emissions Trading",
         "prompt": "Is the organisation supporting policy and legislative measures to address climate change: emissions trading."
     },
     {
-        "query": "Q8: Energy and Resource Efficiency ",
-        "prompt": "Is the organization supporting policy and legislative measures to address climate change: energy efficiency policy, standards, and targets "
+        "query": "Q12: Supporting the Need for Regulations",
+        "prompt": "To what extent does the organization express the need for regulatory intervention to resolve the climate crisis?"
     },
     {
-        "query": "Q9: Renewable Energy ",
-        "prompt": "Is the organization supporting policy and legislative measures to address climate change: Renewable energy legislation, targets, subsidies, and other policy "
-    },
-    {
-        "query": "Q11: GHG Emission Regulation ",
-        "prompt": "Is the organization supporting policy and legislative measures to address climate change: Standards, targets, and other regulatory measures directly targeting Greenhouse Gas emissions "
-    },
-    {
-        "query": "Q14: Land Use",
-        "prompt": "Is the organization supporting policy and legislative measures to enhance and protect ecosystems and land where carbon is being stored? "
-    },
-    {
-        "query": "Q5: Transparency on Legislation ",
-        "prompt": "Is the organisation transparent about its positions on climate change legislation/policy and its activities to influence it? "
-    },
-    {
-        "query": "Q12: Disclosure on Relationships ",
-        "prompt": "Is the organization transparent about its involvement with industry associations that are influencing climate policy, including the extent to which it is aligned with these groups on climate? "
-    },
-    {
-        "query": "Test Q9",
-        "prompt": "Does this statement contain a policy position on renewable energy legislation, targets, or subsidies? We are specifically interested in legislation and policy to incentivise renewable uptake, primarily in the energy sector but also transport and industry. Renewable Fuels policy is included. Policy types might include targets, portfolio standards, incentives, purchase agreements, subsidies, rebates, tax incentives, grid rules/priority arrangements etc. "
-    },
-    {
-        "query": "Electricity market",
-        "prompt": "Does the statement include a policy position on electricity market frameworks?"
+        "query": "Q13: Land Use",
+        "prompt": "Is the organization supporting policy and legislative measures to enhance and protect ecosystems and land where carbon is being stored?"
     }
 ]
